@@ -16,8 +16,7 @@ import { Student } from "./types/Student";
 
 import Swal from "sweetalert2";
 
-import "./App.css";
-
+import './App.css'
 function App() {
   // ================= STATE =================
   const [students, setStudents] = useState<Student[]>([]);
