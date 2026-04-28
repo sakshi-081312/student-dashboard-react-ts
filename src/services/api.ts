@@ -1,6 +1,6 @@
 import { Student } from "../types/Student";
 
-const BASE_URL = "http://localhost:5000/api/students";
+const BASE_URL = "https://student-api.onrender.com/api/students";
 
 // GET
 export const getStudents = async () => {
@@ -8,7 +8,7 @@ export const getStudents = async () => {
   return res.json();
 };
 
-// ADD
+// ADDn
 export const addStudent = async (
   student: Student
 ) => {
