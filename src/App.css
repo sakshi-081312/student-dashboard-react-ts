@@ -365,3 +365,18 @@ tr:hover {
   color: white;
 
 }
+.sidebar-link {
+  display: block;
+  padding: 12px 20px;
+  color: white;
+  text-decoration: none;
+  background: transparent;
+  border: none;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+}
+
+.sidebar-link:hover {
+  background: #1abc9c;
+}

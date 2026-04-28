@@ -1,17 +1,17 @@
 import React from "react";
 
-const Sidebar: React.FC = () => {
-
+function Sidebar() {
   return (
-    <div className="sidebar">
+    <div className="sidebar">git add .
 
-      <a href="#">🏠 Dashboard</a>
-      <a href="#">🎓 Students</a>
-      <a href="#">⚙ Settings</a>
+      <div className="sidebar-item">🏠 Dashboard</div>
+
+      <div className="sidebar-item">🎓 Students</div>
+
+      <div className="sidebar-item">⚙ Settings</div>
 
     </div>
   );
-
-};
+}
 
 export default Sidebar;
