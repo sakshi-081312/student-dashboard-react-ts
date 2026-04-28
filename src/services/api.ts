@@ -1,6 +1,6 @@
 import { Student } from "../types/Student";
 
-const BASE_URL = "https://student-api.onrender.com/api/students";
+const BASE_URL = "https://student-dashboard-react-ts-18kt.vercel.app";
 
 // GET
 export const getStudents = async () => {
