@@ -19,284 +19,132 @@ import Swal from "sweetalert2";
 import "./App.css";
 
 function App() {
+  // ================= STATE =================
+  const [students, setStudents] = useState<Student[]>([]);
+  const [showModal, setShowModal] = useState(false);
+  const [editStudent, setEditStudent] = useState<Student | null>(null);
 
-  // =========================
-  // STATES
-  // =========================
-
-  const [students, setStudents] =
-    useState<Student[]>([]);
-
-  const [showModal, setShowModal] =
-    useState(false);
-
-  const [editStudent,
-    setEditStudent] =
-    useState<Student | null>(null);
-
-  // =========================
-  // LOAD STUDENTS
-  // =========================
-
+  // ================= LOAD DATA =================
   const loadStudents = async () => {
-
     try {
-
       const res = await getStudents();
 
-      console.log("API Response:", res);
+      // handle different API response formats safely
+      const data =
+        res?.data || res || [];
 
-      // 🔥 FIX students.slice error
-      let studentData =
-        res.data || res || [];
-
-      // Ensure it's array
-      if (!Array.isArray(studentData)) {
-
-        studentData =
-          studentData.data || [];
-
+      if (Array.isArray(data)) {
+        setStudents(data.reverse()); // latest first
+      } else {
+        setStudents([]);
       }
 
-      // 🔥 Latest record first
-      studentData =
-        studentData.reverse();
-
-      setStudents(studentData);
-
     } catch (error) {
-
-      console.error(
-        "Error loading students:",
-        error
-      );
+      console.error("Load error:", error);
 
       Swal.fire({
         title: "Error!",
-        text: "Failed to load students.",
+        text: "Failed to load students",
         icon: "error"
       });
-
     }
-
   };
 
   useEffect(() => {
-
     loadStudents();
-
   }, []);
 
-  // =========================
-  // SAVE STUDENT
-  // =========================
-
-  const handleSave = async (
-    student: Student
-  ) => {
-
+  // ================= ADD / EDIT SAVE =================
+  const handleSave = async (student: Student) => {
     try {
-
       if (editStudent) {
+        await updateStudent(editStudent.id!, student);
 
-        await updateStudent(
-          editStudent.id!,
-          student
-        );
-
-        setShowModal(false);
-        setEditStudent(null);
-
-        await Swal.fire({
-          title: "Updated!",
-          text:
-            "Student updated successfully.",
-          icon: "success"
-        });
-
+        Swal.fire("Updated!", "Student updated successfully", "success");
       } else {
-
         await addStudent(student);
 
-        setShowModal(false);
-        setEditStudent(null);
-
-        await Swal.fire({
-          title: "Added!",
-          text:
-            "Student added successfully.",
-          icon: "success"
-        });
-
+        Swal.fire("Added!", "Student added successfully", "success");
       }
 
-      await loadStudents();
+      setShowModal(false);
+      setEditStudent(null);
+      loadStudents();
 
     } catch (error) {
-
       console.error(error);
 
-      Swal.fire({
-        title: "Error!",
-        text:
-          "Failed to save student.",
-        icon: "error"
-      });
-
+      Swal.fire("Error!", "Failed to save student", "error");
     }
-
   };
 
-  // =========================
-  // DELETE STUDENT
-  // =========================
+  // ================= DELETE =================
+  const handleDelete = async (id: number) => {
+    const confirm = await Swal.fire({
+      title: "Are you sure?",
+      text: "This cannot be undone!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Yes, delete",
+    });
 
-  const handleDelete = async (
-    id: number
-  ) => {
-
-    const result =
-      await Swal.fire({
-
-        title: "Are you sure?",
-
-        text:
-          "You won't be able to undo this!",
-
-        icon: "warning",
-
-        showCancelButton: true,
-
-        confirmButtonColor:
-          "#e74c3c",
-
-        cancelButtonColor:
-          "#3085d6",
-
-        confirmButtonText:
-          "Yes, delete it!"
-
-      });
-
-    if (result.isConfirmed) {
-
+    if (confirm.isConfirmed) {
       try {
-
         await deleteStudent(id);
 
-        await Swal.fire({
-          title: "Deleted!",
-          text:
-            "Student deleted successfully.",
-          icon: "success"
-        });
+        Swal.fire("Deleted!", "Student removed", "success");
 
-        await loadStudents();
-
+        loadStudents();
       } catch (error) {
+        console.error(error);
 
-        console.error(
-          "Delete error:",
-          error
-        );
-
-        Swal.fire({
-          title: "Error!",
-          text:
-            "Failed to delete student.",
-          icon: "error"
-        });
-
+        Swal.fire("Error!", "Delete failed", "error");
       }
-
     }
-
   };
 
-  // =========================
-  // EDIT STUDENT
-  // =========================
-
-  const handleEdit = (
-    student: Student
-  ) => {
-
+  // ================= EDIT =================
+  const handleEdit = (student: Student) => {
     setEditStudent(student);
-
     setShowModal(true);
-
   };
 
-  // =========================
-  // ADD STUDENT FIX (IMPORTANT)
-  // =========================
-
-  const handleAddStudent = () => {
-
-    // 🔥 CLEAR OLD EDIT DATA
-    setEditStudent(null);
-
-    // OPEN EMPTY FORM
+  // ================= ADD (IMPORTANT FIX) =================
+  const handleAdd = () => {
+    setEditStudent(null); // clear edit mode
     setShowModal(true);
-
   };
-
-  // =========================
-  // UI
-  // =========================
 
   return (
-
     <div>
-
       <Navbar />
-
       <Sidebar />
 
       <div className="main">
+        <h2>Students Management</h2>
 
-        <h2>
-          Students Management
-        </h2>
-
-        {/* ADD BUTTON */}
-
-        <button
-          className="btn add-btn"
-          onClick={handleAddStudent}
-        >
+        <button className="btn add-btn" onClick={handleAdd}>
           + Add Student
         </button>
 
-        {/* STUDENT TABLE */}
-
         <StudentTable
-          students={
-            Array.isArray(students)
-              ? students
-              : []
-          }
+          students={students}
           onEdit={handleEdit}
           onDelete={handleDelete}
         />
 
-        {/* MODAL */}
-
         <StudentModal
           show={showModal}
-          onClose={() =>
-            setShowModal(false)
-          }
+          onClose={() => {
+            setShowModal(false);
+            setEditStudent(null);
+          }}
           onSave={handleSave}
           editStudent={editStudent}
         />
-
       </div>
-
     </div>
-
   );
-
 }
 
 export default App;

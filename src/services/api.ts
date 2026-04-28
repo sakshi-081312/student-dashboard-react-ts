@@ -1,6 +1,6 @@
 import { Student } from "../types/Student";
 
-const BASE_URL = "https://student-dashboard-react-ts-18kt.vercel.app";
+const BASE_URL = "http://localhost:5000/api/students";
 
 // GET
 export const getStudents = async () => {
@@ -8,7 +8,7 @@ export const getStudents = async () => {
   return res.json();
 };
 
-// ADDn
+// ADD
 export const addStudent = async (
   student: Student
 ) => {
