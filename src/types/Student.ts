@@ -1,8 +1,9 @@
 export interface Student {
-  id?: number;
+  id?: number;                // database id
+  user_id?: string;           // 🔐 link with auth user (uuid)
   name: string;
+  rollno: number;
   email: string;
-  phone: string;
   course: string;
-  age: number;
+  status: "Active" | "Inactive";   
 }

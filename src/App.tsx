@@ -1,146 +1,211 @@
 import React, { useEffect, useState } from "react";
+import { Routes, Route, Navigate } from "react-router-dom";
 
 import Navbar from "./components/Navbar";
 import Sidebar from "./components/Sidebar";
-import StudentTable from "./components/StudentTable";
-import StudentModal from "./components/StudentModal";
+
+import Dashboard from "./pages/Dashboard";
+import Students from "./pages/students";
+import Attendance from "./pages/Attendance";
+import Assignments from "./pages/Assignments";
+import Marks from "./pages/Marks";
+import Settings from "./pages/settings";
+import StudentInformation from "./pages/studentInformation";
+import PersonalInfo from "./pages/personalinfo"; 
+import Login from "./pages/login";
+import MyProfile from "./pages/Myprofile";
 
 import {
   getStudents,
-  addStudent,
-  updateStudent,
-  deleteStudent
+  getAttendance,
+  getAssignments,
+  getMarks
 } from "./services/api";
 
 import { Student } from "./types/Student";
+import { useAuth } from "./context/AuthContext";
 
-import Swal from "sweetalert2";
+import "./App.css";
 
-import './App.css'
 function App() {
-  // ================= STATE =================
+
+  // ================= AUTH =================
+  const { user, loading: authLoading } = useAuth();
+
+  const role: "admin" | "teacher" | "student" =
+    user?.role || "student";
+
+  // ================= DATA =================
   const [students, setStudents] = useState<Student[]>([]);
-  const [showModal, setShowModal] = useState(false);
-  const [editStudent, setEditStudent] = useState<Student | null>(null);
+  const [attendance, setAttendance] = useState<any[]>([]);
+  const [assignments, setAssignments] = useState<any[]>([]);
+  const [marks, setMarks] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
   // ================= LOAD DATA =================
-  const loadStudents = async () => {
+  const loadAllData = async () => {
+    setLoading(true);
+
     try {
-      const res = await getStudents();
+      const [studentsRes, attendanceRes, assignmentsRes, marksRes] =
+        await Promise.all([
+          getStudents(),
+          getAttendance(),
+          getAssignments(),
+          getMarks()
+        ]);
 
-      // handle different API response formats safely
-      const data =
-        res?.data || res || [];
-
-      if (Array.isArray(data)) {
-        setStudents(data.reverse()); // latest first
-      } else {
-        setStudents([]);
-      }
+      setStudents(studentsRes || []);
+      setAttendance(attendanceRes || []);
+      setAssignments(assignmentsRes || []);
+      setMarks(marksRes || []);
 
     } catch (error) {
-      console.error("Load error:", error);
-
-      Swal.fire({
-        title: "Error!",
-        text: "Failed to load students",
-        icon: "error"
-      });
+      console.error("Load Error:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
+  // ================= INIT =================
   useEffect(() => {
-    loadStudents();
-  }, []);
-
-  // ================= ADD / EDIT SAVE =================
-  const handleSave = async (student: Student) => {
-    try {
-      if (editStudent) {
-        await updateStudent(editStudent.id!, student);
-
-        Swal.fire("Updated!", "Student updated successfully", "success");
-      } else {
-        await addStudent(student);
-
-        Swal.fire("Added!", "Student added successfully", "success");
-      }
-
-      setShowModal(false);
-      setEditStudent(null);
-      loadStudents();
-
-    } catch (error) {
-      console.error(error);
-
-      Swal.fire("Error!", "Failed to save student", "error");
+    if (user) {
+      loadAllData();
     }
-  };
+  }, [user]);
 
-  // ================= DELETE =================
-  const handleDelete = async (id: number) => {
-    const confirm = await Swal.fire({
-      title: "Are you sure?",
-      text: "This cannot be undone!",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonText: "Yes, delete",
-    });
+  // ================= AUTH LOADING =================
+  if (authLoading) {
+    return (
+      <h3 style={{ textAlign: "center" }}>
+        Checking authentication...
+      </h3>
+    );
+  }
 
-    if (confirm.isConfirmed) {
-      try {
-        await deleteStudent(id);
-
-        Swal.fire("Deleted!", "Student removed", "success");
-
-        loadStudents();
-      } catch (error) {
-        console.error(error);
-
-        Swal.fire("Error!", "Delete failed", "error");
-      }
-    }
-  };
-
-  // ================= EDIT =================
-  const handleEdit = (student: Student) => {
-    setEditStudent(student);
-    setShowModal(true);
-  };
-
-  // ================= ADD (IMPORTANT FIX) =================
-  const handleAdd = () => {
-    setEditStudent(null); // clear edit mode
-    setShowModal(true);
-  };
+  // ================= NOT LOGGED IN =================
+  if (!user) {
+    return (
+      <Routes>
+        <Route path="*" element={<Login />} />
+      </Routes>
+    );
+  }
 
   return (
-    <div>
+    <div className="app-container">
+
       <Navbar />
-      <Sidebar />
 
-      <div className="main">
-        <h2>Students Management</h2>
+      <div className="layout">
 
-        <button className="btn add-btn" onClick={handleAdd}>
-          + Add Student
-        </button>
+        <Sidebar role={role} />
 
-        <StudentTable
-          students={students}
-          onEdit={handleEdit}
-          onDelete={handleDelete}
-        />
+        <div className="main-container">
 
-        <StudentModal
-          show={showModal}
-          onClose={() => {
-            setShowModal(false);
-            setEditStudent(null);
-          }}
-          onSave={handleSave}
-          editStudent={editStudent}
-        />
+          <Routes>
+
+            {/* ================= DASHBOARD ================= */}
+            <Route
+              path="/"
+              element={
+                loading ? (
+                  <h3>Loading dashboard...</h3>
+                ) : (
+                  <Dashboard
+                    students={students}
+                    attendance={attendance}
+                    assignments={assignments}
+                    marks={marks}
+                    role={role}
+                  />
+                )
+              }
+            />
+
+            {/* ================= STUDENTS ================= */}
+            <Route
+              path="/students"
+              element={
+                <Students
+                  students={students}
+                  loadStudents={loadAllData}
+                />
+              }
+            />
+
+            {/* ================= ATTENDANCE ================= */}
+            <Route
+              path="/attendance"
+              element={
+                <Attendance
+                  students={students}
+                  loadAttendance={loadAllData}
+                />
+              }
+            />
+
+            {/* ================= ASSIGNMENTS ================= */}
+            <Route
+              path="/assignments"
+              element={
+                <Assignments
+                  students={students}
+                  loadAssignments={loadAllData}
+                />
+              }
+            />
+
+            {/* ================= MARKS ================= */}
+            <Route
+              path="/marks"
+              element={
+                <Marks
+                  students={students}
+                  marks={marks}
+                  loadMarks={loadAllData}
+                />
+              }
+            />
+
+            {/* ================= STUDENT INFORMATION ================= */}
+            <Route
+              path="/student-information"
+              element={
+                <StudentInformation
+                  students={students}
+                  attendance={attendance}
+                  assignments={assignments}
+                  marks={marks}
+                />
+              }
+            />
+
+            {/* ================= PERSONAL INFO (NEW) ================= */}
+            <Route
+              path="/personal-info"
+              element={
+                <PersonalInfo />
+              }
+            />
+            {/* ================= MY PROFILE ================= */}
+<Route
+  path="/my-profile"
+  element={<MyProfile />}
+/>
+
+            {/* ================= SETTINGS ================= */}
+            <Route
+              path="/settings"
+              element={<Settings />}
+            />
+
+            {/* ================= FALLBACK ================= */}
+            <Route path="*" element={<Navigate to="/" />} />
+
+          </Routes>
+
+        </div>
       </div>
     </div>
   );
