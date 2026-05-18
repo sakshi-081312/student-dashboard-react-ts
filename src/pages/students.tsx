@@ -26,9 +26,8 @@ const Students: React.FC<Props> = ({
   const [showModal, setShowModal] = useState(false);
   const [editStudent, setEditStudent] = useState<Student | null>(null);
 
-  // ================= UPDATED THEME COLORS =================
-  const PRIMARY = "hsl(174, 62%, 55%)";   
-  const SECONDARY = "hsl(222, 60%, 18%)";
+  const PRIMARY = "#2563eb";
+  const SECONDARY = "#1f2a44";
 
   // ================= SAVE =================
   const handleSave = async (student: Student) => {
@@ -48,14 +47,12 @@ const Students: React.FC<Props> = ({
       await loadStudents();
 
     } catch (error) {
-      console.log(error);
       Swal.fire("Error!", "Something went wrong", "error");
     }
   };
 
   // ================= DELETE =================
   const handleDelete = async (id: number) => {
-
     const confirm = await Swal.fire({
       title: "Delete Student?",
       text: "This action cannot be undone!",
@@ -78,80 +75,34 @@ const Students: React.FC<Props> = ({
     setShowModal(true);
   };
 
-  // ================= UI =================
   return (
-
-    <div
-      style={{
-        padding: "20px",
-        background: "hsla(174,62%,55%,0.06)", 
-        minHeight: "100vh",
-        fontFamily: "Arial"
-      }}
-    >
-
-      {/* HEADER */}
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          marginBottom: "20px",
-          padding: "10px 0"
-        }}
-      >
-
-        <h2
-          style={{
-            color: SECONDARY,
-            fontSize: "24px",
-            fontWeight: "bold"
-          }}
-        >
-          🎓 Students Management
-        </h2>
+    <div className="page-shell">
+      <div className="page-header">
+        <div>
+          <h1 className="page-title">Students</h1>
+          <p className="page-subtitle">Manage student records</p>
+        </div>
 
         <button
           onClick={() => {
             setEditStudent(null);
             setShowModal(true);
           }}
-          style={{
-            background: PRIMARY, 
-            color: "white",
-            padding: "10px 18px",
-            border: "none",
-            borderRadius: "8px",
-            fontWeight: "bold",
-            cursor: "pointer",
-            boxShadow: "0 2px 8px rgba(0,0,0,0.1)"
-          }}
+          className="add-btn"
         >
           + Add Student
         </button>
-
       </div>
 
-      {/* TABLE CARD */}
-      <div
-        style={{
-          background: "white",
-          borderRadius: "12px",
-          padding: "20px",
-          boxShadow: "0 4px 12px rgba(0,0,0,0.06)",
-          borderTop: `4px solid ${PRIMARY}` // ✅ updated
-        }}
-      >
-
+      <div className="table-card">
         <StudentTable
           students={students}
           onEdit={handleEdit}
           onDelete={handleDelete}
         />
-
       </div>
 
-      {/* MODAL */}
+      {/* ================= MODAL ================= */}
       <StudentModal
         show={showModal}
         onClose={() => {

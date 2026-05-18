@@ -7,7 +7,7 @@ import {
   Phone,
   Mail,
   GraduationCap,
-  MapPin
+  MapPin,
 } from "lucide-react";
 
 interface Props {
@@ -16,16 +16,14 @@ interface Props {
   onDelete: (id: number) => void;
 }
 
-// ================= COURSE LABEL MAP =================
 const courseLabels: Record<string, string> = {
   ECE: "E.C.E",
   EEE: "E.E.E",
   CIVIL: "Civil",
   MECHANICAL: "Mechanical",
-  CSE: "C.S.E"
+  CSE: "C.S.E",
 };
 
-// ================= NORMALIZE FUNCTION =================
 const normalizeCourse = (course: string) => {
   return (course || "")
     .toUpperCase()
@@ -39,47 +37,30 @@ const normalizeCourse = (course: string) => {
     .replace("(MECHANICAL)", "MECHANICAL");
 };
 
-const StudentTable: React.FC<Props> = ({
-  students,
-  onEdit,
-  onDelete
-}) => {
-
+const StudentTable: React.FC<Props> = ({ students, onEdit, onDelete }) => {
   const [search, setSearch] = useState("");
   const [courseFilter, setCourseFilter] = useState("");
   const [sortField, setSortField] = useState<keyof Student>("id");
-  const [sortOrder, setSortOrder] =
-    useState<"asc" | "desc">("asc");
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
 
-  const [currentPage, setCurrentPage] =
-    useState(1);
+  const filteredStudents = students.filter((student) => {
+    const matchesCourse = courseFilter
+      ? normalizeCourse(student.course) === normalizeCourse(courseFilter)
+      : true;
 
-  const [rowsPerPage, setRowsPerPage] =
-    useState(5);
-
-  const [selectedStudent, setSelectedStudent] =
-    useState<Student | null>(null);
-
-  // ================= FILTER =================
-  const filteredStudents = students.filter((s) => {
-
-    const matchesCourse =
-      courseFilter
-        ? normalizeCourse(s.course) ===
-          normalizeCourse(courseFilter)
-        : true;
-
+    const query = search.toLowerCase();
     const matchesSearch =
-      s.name?.toLowerCase().includes(search.toLowerCase()) ||
-      s.email?.toLowerCase().includes(search.toLowerCase()) ||
-      String(s.rollno).includes(search);
+      student.name?.toLowerCase().includes(query) ||
+      student.email?.toLowerCase().includes(query) ||
+      String(student.rollno).includes(search);
 
     return matchesCourse && matchesSearch;
   });
 
-  // ================= SORT =================
   const sortedStudents = [...filteredStudents].sort((a, b) => {
-
     let aVal: any = a[sortField];
     let bVal: any = b[sortField];
 
@@ -91,71 +72,34 @@ const StudentTable: React.FC<Props> = ({
       bVal = String(bVal).toLowerCase();
     }
 
-    if (aVal < bVal)
-      return sortOrder === "asc" ? -1 : 1;
-
-    if (aVal > bVal)
-      return sortOrder === "asc" ? 1 : -1;
-
+    if (aVal < bVal) return sortOrder === "asc" ? -1 : 1;
+    if (aVal > bVal) return sortOrder === "asc" ? 1 : -1;
     return 0;
   });
 
-  // ================= PAGINATION =================
-  const indexOfLast =
-    currentPage * rowsPerPage;
+  const totalPages = Math.max(Math.ceil(sortedStudents.length / rowsPerPage), 1);
+  const indexOfLast = currentPage * rowsPerPage;
+  const indexOfFirst = indexOfLast - rowsPerPage;
+  const currentStudents = sortedStudents.slice(indexOfFirst, indexOfLast);
 
-  const indexOfFirst =
-    indexOfLast - rowsPerPage;
-
-  const currentStudents =
-    sortedStudents.slice(
-      indexOfFirst,
-      indexOfLast
-    );
-
-  const totalPages = Math.ceil(
-    sortedStudents.length / rowsPerPage
-  );
-
-  // ================= SORT FUNCTION =================
   const handleSort = (field: keyof Student) => {
-
     if (sortField === field) {
-
-      setSortOrder(
-        sortOrder === "asc"
-          ? "desc"
-          : "asc"
-      );
-
-    } else {
-
-      setSortField(field);
-      setSortOrder("asc");
-
+      setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+      return;
     }
+
+    setSortField(field);
+    setSortOrder("asc");
   };
 
-  const getSortIcon = (
-    field: keyof Student
-  ) => {
-
-    if (sortField !== field)
-      return "⇅";
-
-    return sortOrder === "asc"
-      ? "↑"
-      : "↓";
+  const getSortIcon = (field: keyof Student) => {
+    if (sortField !== field) return "Sort";
+    return sortOrder === "asc" ? "Up" : "Down";
   };
 
   return (
-
     <div style={styles.wrapper}>
-
-      {/* ================= FILTER BAR ================= */}
-
       <div style={styles.filterBar}>
-
         <select
           value={courseFilter}
           onChange={(e) => {
@@ -164,31 +108,12 @@ const StudentTable: React.FC<Props> = ({
           }}
           style={styles.select}
         >
-
-          <option value="">
-            All Courses
-          </option>
-
-          <option value="ECE">
-            E.C.E
-          </option>
-
-          <option value="EEE">
-            E.E.E
-          </option>
-
-          <option value="CIVIL">
-            Civil
-          </option>
-
-          <option value="MECHANICAL">
-            Mechanical
-          </option>
-
-          <option value="CSE">
-            C.S.E
-          </option>
-
+          <option value="">All Courses</option>
+          <option value="ECE">E.C.E</option>
+          <option value="EEE">E.E.E</option>
+          <option value="CIVIL">Civil</option>
+          <option value="MECHANICAL">Mechanical</option>
+          <option value="CSE">C.S.E</option>
         </select>
 
         <input
@@ -200,818 +125,411 @@ const StudentTable: React.FC<Props> = ({
           }}
           style={styles.search}
         />
-
       </div>
 
-      {/* ================= TABLE ================= */}
-
       <div style={styles.card}>
-
         <table style={styles.table}>
-
-          <thead style={styles.thead}>
-
+          <thead>
             <tr>
-
-              <th
-                style={styles.th}
-                onClick={() => handleSort("id")}
-              >
+              <th style={styles.th} onClick={() => handleSort("id")}>
                 ID {getSortIcon("id")}
               </th>
-
-              <th
-                style={styles.th}
-                onClick={() => handleSort("name")}
-              >
+              <th style={styles.th} onClick={() => handleSort("name")}>
                 Student {getSortIcon("name")}
               </th>
-
-              <th
-                style={styles.th}
-                onClick={() => handleSort("rollno")}
-              >
+              <th style={styles.th} onClick={() => handleSort("rollno")}>
                 Roll No {getSortIcon("rollno")}
               </th>
-
-              <th
-                style={styles.th}
-                onClick={() => handleSort("email")}
-              >
+              <th style={styles.th} onClick={() => handleSort("email")}>
                 Email {getSortIcon("email")}
               </th>
-
-              <th
-                style={styles.th}
-                onClick={() => handleSort("course")}
-              >
+              <th style={styles.th} onClick={() => handleSort("course")}>
                 Course {getSortIcon("course")}
               </th>
-
-              <th style={styles.th}>
-                Status
-              </th>
-
-              <th style={styles.th}>
-                Actions
-              </th>
-
+              <th style={styles.th}>Status</th>
+              <th style={styles.th}>Actions</th>
             </tr>
-
           </thead>
 
           <tbody>
-
-            {currentStudents.map((s) => (
-
-              <tr
-                key={s.id}
-                style={styles.row}
-              >
-
+            {currentStudents.map((student) => (
+              <tr key={student.id}>
+                <td style={styles.td}>{student.id}</td>
                 <td style={styles.td}>
-                  {s.id}
-                </td>
-
-                {/* PROFILE */}
-                <td style={styles.td}>
-
                   <div style={styles.profileWrap}>
-
                     <button
+                      type="button"
                       style={styles.profileIconBtn}
-                      onClick={() =>
-                        setSelectedStudent(s)
-                      }
+                      onClick={() => setSelectedStudent(student)}
                     >
-
-                      <UserCircle2
-                        size={42}
-                      />
-
+                      <UserCircle2 size={40} />
                     </button>
-
-                    <div
-                      style={styles.profileInfo}
-                    >
-
-                      <div
-                        style={styles.studentName}
-                      >
-                        {s.name}
-                      </div>
-
-                    </div>
-
+                    <div style={styles.studentName}>{student.name}</div>
                   </div>
-
                 </td>
-
+                <td style={styles.td}>{student.rollno}</td>
+                <td style={styles.td}>{student.email}</td>
                 <td style={styles.td}>
-                  {s.rollno}
+                  {courseLabels[normalizeCourse(student.course)] || student.course}
                 </td>
-
                 <td style={styles.td}>
-                  {s.email}
-                </td>
-
-                <td style={styles.td}>
-
-                  {
-                    courseLabels[
-                      normalizeCourse(
-                        s.course
-                      )
-                    ] || s.course
-                  }
-
-                </td>
-
-                {/* STATUS */}
-                <td style={styles.td}>
-
                   <span
                     style={{
-                      padding:
-                        "5px 12px",
-                      borderRadius:
-                        "20px",
-                      color: "white",
-                      fontWeight:
-                        "600",
-                      fontSize:
-                        "11px",
-                      background:
-                        s.status ===
-                        "Inactive"
-                          ? "#ef4444"
-                          : "#22c55e"
+                      ...styles.statusBadge,
+                      background: student.status === "Inactive" ? "#dc2626" : "#0f766e",
                     }}
                   >
-
-                    {s.status ||
-                      "Active"}
-
+                    {student.status || "Active"}
                   </span>
-
                 </td>
-
-                {/* ACTIONS */}
                 <td style={styles.td}>
-
-                  <div
-                    style={styles.actionWrap}
-                  >
-
+                  <div style={styles.actionWrap}>
                     <button
-                      onClick={() =>
-                        onEdit(s)
-                      }
-                      style={
-                        styles.editBtn
-                      }
+                      type="button"
+                      aria-label="Edit student"
+                      onClick={() => onEdit(student)}
+                      style={styles.editBtn}
                     >
-
-                      <Pencil
-                        size={16}
-                      />
-
+                      <Pencil size={16} />
                     </button>
-
                     <button
-                      onClick={() =>
-                        onDelete(s.id!)
-                      }
-                      style={
-                        styles.deleteBtn
-                      }
+                      type="button"
+                      aria-label="Delete student"
+                      onClick={() => onDelete(student.id!)}
+                      style={styles.deleteBtn}
                     >
-
-                      <Trash2
-                        size={16}
-                      />
-
+                      <Trash2 size={16} />
                     </button>
-
                   </div>
-
                 </td>
-
               </tr>
             ))}
 
+            {currentStudents.length === 0 && (
+              <tr>
+                <td colSpan={7} style={styles.emptyCell}>
+                  No students found.
+                </td>
+              </tr>
+            )}
           </tbody>
-
         </table>
-
       </div>
 
-      {/* ================= PAGINATION ================= */}
-
       <div style={styles.pagination}>
-
         <div>
-
           Rows:
-
           <select
             value={rowsPerPage}
             onChange={(e) => {
-
-              setRowsPerPage(
-                Number(
-                  e.target.value
-                )
-              );
-
+              setRowsPerPage(Number(e.target.value));
               setCurrentPage(1);
-
             }}
             style={styles.rowsSelect}
           >
-
-            <option value={5}>
-              5
-            </option>
-
-            <option value={10}>
-              10
-            </option>
-
-            <option value={20}>
-              20
-            </option>
-
+            <option value={5}>5</option>
+            <option value={10}>10</option>
+            <option value={20}>20</option>
           </select>
-
         </div>
 
         <div>
-
-          {indexOfFirst + 1} -{" "}
-          {Math.min(
-            indexOfLast,
-            sortedStudents.length
-          )}
-          {" "}of{" "}
-          {sortedStudents.length}
-
+          {sortedStudents.length === 0 ? 0 : indexOfFirst + 1} -{" "}
+          {Math.min(indexOfLast, sortedStudents.length)} of {sortedStudents.length}
         </div>
 
-        <div
-          style={styles.paginationButtons}
-        >
-
-          <button
-            style={styles.pageBtn}
-            onClick={() =>
-              setCurrentPage(1)
-            }
-          >
-            ⏮
+        <div style={styles.paginationButtons}>
+          <button type="button" style={styles.pageBtn} onClick={() => setCurrentPage(1)}>
+            First
           </button>
-
           <button
+            type="button"
             style={styles.pageBtn}
-            onClick={() =>
-              setCurrentPage((p) =>
-                Math.max(p - 1, 1)
-              )
-            }
+            onClick={() => setCurrentPage((page) => Math.max(page - 1, 1))}
           >
-            ◀
+            Prev
           </button>
-
-          <span
-            style={styles.pageNumber}
-          >
-            {currentPage}
-          </span>
-
+          <span style={styles.pageNumber}>{currentPage}</span>
           <button
+            type="button"
             style={styles.pageBtn}
-            onClick={() =>
-              setCurrentPage((p) =>
-                Math.min(
-                  p + 1,
-                  totalPages
-                )
-              )
-            }
+            onClick={() => setCurrentPage((page) => Math.min(page + 1, totalPages))}
           >
-            ▶
+            Next
           </button>
-
-          <button
-            style={styles.pageBtn}
-            onClick={() =>
-              setCurrentPage(
-                totalPages
-              )
-            }
-          >
-            ⏭
+          <button type="button" style={styles.pageBtn} onClick={() => setCurrentPage(totalPages)}>
+            Last
           </button>
-
         </div>
-
       </div>
 
-      {/* ================= PROFILE MODAL ================= */}
-
       {selectedStudent && (
-
         <div style={styles.modalOverlay}>
-
           <div style={styles.modal}>
-
             <button
+              type="button"
               style={styles.closeBtn}
-              onClick={() =>
-                setSelectedStudent(null)
-              }
+              onClick={() => setSelectedStudent(null)}
             >
-              ✕
+              X
             </button>
 
-            {/* TOP */}
-            <div
-              style={styles.modalTop}
-            >
-
-              <div
-                style={styles.bigProfile}
-              >
-
-                <UserCircle2
-                  size={70}
-                />
-
+            <div style={styles.modalTop}>
+              <div style={styles.bigProfile}>
+                <UserCircle2 size={70} />
               </div>
-
               <div>
-
-                <h2
-                  style={
-                    styles.modalName
-                  }
-                >
-                  {
-                    selectedStudent.name
-                  }
-                </h2>
-
-                <p
-                  style={
-                    styles.modalCourse
-                  }
-                >
-                  {
-                    selectedStudent.course
-                  }
-                </p>
-
+                <h2 style={styles.modalName}>{selectedStudent.name}</h2>
+                <p style={styles.modalCourse}>{selectedStudent.course}</p>
               </div>
-
             </div>
 
-            {/* DETAILS */}
-            <div
-              style={styles.detailsGrid}
-            >
-
-              <div
-                style={styles.detailCard}
-              >
-                <GraduationCap
-                  size={18}
-                />
-
-                <div>
-                  <span
-                    style={
-                      styles.label
-                    }
-                  >
-                    Roll No
-                  </span>
-
-                  <p
-                    style={
-                      styles.value
-                    }
-                  >
-                    {
-                      selectedStudent.rollno ||
-                      "-"
-                    }
-                  </p>
-                </div>
-              </div>
-
-              <div
-                style={styles.detailCard}
-              >
-                <Mail size={18} />
-
-                <div>
-                  <span
-                    style={
-                      styles.label
-                    }
-                  >
-                    Email
-                  </span>
-
-                  <p
-                    style={
-                      styles.value
-                    }
-                  >
-                    {
-                      selectedStudent.email ||
-                      "-"
-                    }
-                  </p>
-                </div>
-              </div>
-
-              <div
-                style={styles.detailCard}
-              >
-                <UserCircle2
-                  size={18}
-                />
-
-                <div>
-                  <span
-                    style={
-                      styles.label
-                    }
-                  >
-                    Father's Name
-                  </span>
-
-                  <p
-                    style={
-                      styles.value
-                    }
-                  >
-                    {
-                      (selectedStudent as any)
-                        .fatherName ||
-                      "-"
-                    }
-                  </p>
-                </div>
-              </div>
-
-              <div
-                style={styles.detailCard}
-              >
-                <UserCircle2
-                  size={18}
-                />
-
-                <div>
-                  <span
-                    style={
-                      styles.label
-                    }
-                  >
-                    Mother's Name
-                  </span>
-
-                  <p
-                    style={
-                      styles.value
-                    }
-                  >
-                    {
-                      (selectedStudent as any)
-                        .motherName ||
-                      "-"
-                    }
-                  </p>
-                </div>
-              </div>
-
-              <div
-                style={styles.detailCard}
-              >
-                <Phone
-                  size={18}
-                />
-
-                <div>
-                  <span
-                    style={
-                      styles.label
-                    }
-                  >
-                    Parent Phone
-                  </span>
-
-                  <p
-                    style={
-                      styles.value
-                    }
-                  >
-                    {
-                      (selectedStudent as any)
-                        .parentPhone ||
-                      "-"
-                    }
-                  </p>
-                </div>
-              </div>
-
-              <div
-                style={styles.detailCard}
-              >
-                <MapPin
-                  size={18}
-                />
-
-                <div>
-                  <span
-                    style={
-                      styles.label
-                    }
-                  >
-                    Address
-                  </span>
-
-                  <p
-                    style={
-                      styles.value
-                    }
-                  >
-                    {
-                      (selectedStudent as any)
-                        .address ||
-                      "-"
-                    }
-                  </p>
-                </div>
-              </div>
-
+            <div style={styles.detailsGrid}>
+              <Detail icon={<GraduationCap size={18} />} label="Roll No" value={selectedStudent.rollno || "-"} />
+              <Detail icon={<Mail size={18} />} label="Email" value={selectedStudent.email || "-"} />
+              <Detail icon={<UserCircle2 size={18} />} label="Father's Name" value={(selectedStudent as any).fatherName || "-"} />
+              <Detail icon={<UserCircle2 size={18} />} label="Mother's Name" value={(selectedStudent as any).motherName || "-"} />
+              <Detail icon={<Phone size={18} />} label="Parent Phone" value={(selectedStudent as any).parentPhone || "-"} />
+              <Detail icon={<MapPin size={18} />} label="Address" value={(selectedStudent as any).address || "-"} />
             </div>
-
           </div>
-
         </div>
       )}
-
     </div>
   );
 };
 
-export default StudentTable;
-
-// ================= STYLES =================
+const Detail = ({ icon, label, value }: any) => (
+  <div style={styles.detailCard}>
+    {icon}
+    <div>
+      <span style={styles.label}>{label}</span>
+      <p style={styles.value}>{value}</p>
+    </div>
+  </div>
+);
 
 const styles: any = {
-
   wrapper: {
-    padding: "20px"
+    padding: 0,
   },
-
   filterBar: {
     display: "flex",
+    flexWrap: "wrap",
     gap: "10px",
-    marginBottom: "15px"
+    marginBottom: "15px",
   },
-
   select: {
+    flex: "0 1 180px",
+    minWidth: "160px",
     padding: "10px",
     borderRadius: "8px",
-    border: "1px solid #d1d5db"
+    border: "1px solid #dce4ec",
   },
-
   search: {
-    flex: 1,
+    flex: "1 1 240px",
+    minWidth: "180px",
     padding: "10px",
     borderRadius: "8px",
-    border: "1px solid #d1d5db"
+    border: "1px solid #dce4ec",
   },
-
   card: {
+    border: "1px solid #dce4ec",
+    borderRadius: "8px",
     background: "#fff",
-    padding: "15px",
-    borderRadius: "16px",
-    boxShadow:
-      "0 4px 16px rgba(0,0,0,0.06)"
+    overflowX: "auto",
   },
-
   table: {
     width: "100%",
-    borderCollapse: "collapse"
+    minWidth: "900px",
+    borderCollapse: "collapse",
   },
-
-  thead: {
-    background: "#0f172a",
-    color: "#fff"
-  },
-
   th: {
-    padding: "14px",
+    padding: "13px",
     cursor: "pointer",
     textAlign: "center",
-    fontSize: "14px"
+    fontSize: "13px",
+    whiteSpace: "nowrap",
   },
-
   td: {
-    padding: "14px",
+    padding: "13px",
     textAlign: "center",
     verticalAlign: "middle",
-    fontSize: "14px"
+    fontSize: "14px",
   },
-
-  row: {
-    borderBottom:
-      "1px solid #f1f5f9"
-  },
-
   profileWrap: {
     display: "flex",
     alignItems: "center",
-    gap: "10px"
+    gap: "10px",
   },
-
   profileIconBtn: {
     border: "none",
     background: "transparent",
     cursor: "pointer",
     color: "#334155",
-    padding: 0
+    padding: 0,
   },
-
-  profileInfo: {
-    display: "flex",
-    flexDirection: "column"
-  },
-
   studentName: {
-    fontWeight: "600",
-    fontSize: "14px",
-    textAlign: "left"
+    fontWeight: 700,
+    textAlign: "left",
   },
-
+  statusBadge: {
+    display: "inline-flex",
+    alignItems: "center",
+    minHeight: "24px",
+    borderRadius: "999px",
+    color: "#fff",
+    fontWeight: 700,
+    fontSize: "12px",
+    padding: "4px 10px",
+  },
   actionWrap: {
     display: "flex",
     justifyContent: "center",
-    gap: "8px"
+    gap: "8px",
   },
-
   editBtn: {
     border: "none",
     background: "#dbeafe",
     color: "#2563eb",
     width: "34px",
     height: "34px",
-    borderRadius: "10px",
+    borderRadius: "8px",
     cursor: "pointer",
     display: "flex",
     alignItems: "center",
-    justifyContent: "center"
+    justifyContent: "center",
   },
-
   deleteBtn: {
     border: "none",
     background: "#fee2e2",
     color: "#dc2626",
     width: "34px",
     height: "34px",
-    borderRadius: "10px",
+    borderRadius: "8px",
     cursor: "pointer",
     display: "flex",
     alignItems: "center",
-    justifyContent: "center"
+    justifyContent: "center",
   },
-
+  emptyCell: {
+    padding: "28px",
+    color: "#667085",
+  },
   pagination: {
     display: "flex",
+    flexWrap: "wrap",
     justifyContent: "space-between",
     alignItems: "center",
-    marginTop: "20px"
+    gap: "12px",
+    marginTop: "18px",
+    color: "#667085",
   },
-
   paginationButtons: {
     display: "flex",
+    flexWrap: "wrap",
     alignItems: "center",
-    gap: "8px"
+    gap: "8px",
   },
-
   pageBtn: {
-    background: "#0f172a",
+    background: "#1f2a44",
     color: "#fff",
     border: "none",
-    padding: "8px 12px",
+    padding: "8px 10px",
     borderRadius: "8px",
-    cursor: "pointer"
+    cursor: "pointer",
   },
-
   pageNumber: {
-    fontWeight: "bold"
+    color: "#172033",
+    fontWeight: 700,
   },
-
   rowsSelect: {
     marginLeft: "8px",
-    padding: "5px",
-    borderRadius: "5px"
+    padding: "6px",
+    borderRadius: "8px",
+    border: "1px solid #dce4ec",
   },
-
-  // ================= MODAL =================
-
   modalOverlay: {
     position: "fixed",
     inset: 0,
-    background:
-      "rgba(15,23,42,0.55)",
+    background: "rgba(15,23,42,0.55)",
     display: "flex",
     justifyContent: "center",
     alignItems: "center",
     zIndex: 9999,
-    backdropFilter: "blur(4px)"
+    padding: "16px",
   },
-
   modal: {
     width: "520px",
-    maxWidth: "92%",
+    maxWidth: "100%",
+    maxHeight: "90vh",
+    overflowY: "auto",
     background: "#fff",
-    borderRadius: "24px",
+    borderRadius: "8px",
     padding: "24px",
     position: "relative",
-    boxShadow:
-      "0 20px 50px rgba(0,0,0,0.18)"
+    boxShadow: "0 20px 50px rgba(0,0,0,0.18)",
   },
-
   closeBtn: {
     position: "absolute",
     top: 16,
     right: 16,
     border: "none",
-    background: "#f1f5f9",
-    color: "#0f172a",
+    background: "#eef4f8",
+    color: "#172033",
     width: "34px",
     height: "34px",
-    borderRadius: "50%",
+    borderRadius: "8px",
     cursor: "pointer",
     fontSize: "14px",
-    fontWeight: "bold"
+    fontWeight: 700,
   },
-
   modalTop: {
     display: "flex",
     alignItems: "center",
     gap: "16px",
-    marginBottom: "24px"
+    marginBottom: "22px",
+    paddingRight: "42px",
   },
-
   bigProfile: {
-    color: "#334155"
+    color: "#334155",
   },
-
   modalName: {
     margin: 0,
     fontSize: "24px",
-    color: "#0f172a"
+    color: "#172033",
   },
-
   modalCourse: {
-    marginTop: "4px",
-    color: "#64748b",
-    fontSize: "14px"
+    margin: "4px 0 0",
+    color: "#667085",
+    fontSize: "14px",
   },
-
   detailsGrid: {
     display: "grid",
-    gridTemplateColumns:
-      "1fr 1fr",
-    gap: "14px"
+    gridTemplateColumns: "repeat(auto-fit, minmax(190px, 1fr))",
+    gap: "12px",
   },
-
   detailCard: {
-    background: "#f8fafc",
-    borderRadius: "16px",
+    background: "#f6f8fb",
+    border: "1px solid #dce4ec",
+    borderRadius: "8px",
     padding: "14px",
     display: "flex",
     gap: "12px",
-    alignItems: "flex-start"
+    alignItems: "flex-start",
   },
-
   label: {
     fontSize: "12px",
-    color: "#64748b",
-    fontWeight: "600"
+    color: "#667085",
+    fontWeight: 700,
   },
-
   value: {
     margin: "4px 0 0",
     fontSize: "14px",
-    color: "#0f172a",
-    fontWeight: "600"
-  }
-
+    color: "#172033",
+    fontWeight: 700,
+    overflowWrap: "anywhere",
+  },
 };
+
+export default StudentTable;

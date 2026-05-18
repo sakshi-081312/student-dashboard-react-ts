@@ -1,46 +1,98 @@
-# Getting Started with Create React App
+# Student Management Dashboard
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+A responsive student management web application built with React.js, TypeScript, Supabase, Recharts, and SweetAlert2.
 
-## Available Scripts
+This project is designed for college-level academic management. It includes modules for login, dashboard analytics, student records, attendance, assignments, marks entry, and student profile management.
 
-In the project directory, you can run:
+## Full Project Report
 
-### `npm start`
+The complete college-level documentation and presentation report is available here:
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+[PROJECT_DOCUMENTATION_AND_REPORT.md](./PROJECT_DOCUMENTATION_AND_REPORT.md)
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+## Project Screenshots
 
-### `npm test`
+Screenshots used in the report are saved in:
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+[docs/images](./docs/images)
 
-### `npm run build`
+Preview:
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+![Dashboard Screenshot](./docs/images/02-dashboard.png)
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+## Features
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+- Role-based login for admin, teacher, and student users.
+- Dashboard with analytics charts.
+- Student add, edit, delete, search, sort, filter, and pagination.
+- Attendance marking with compact responsive cards.
+- Assignment marks entry with total and percentage calculation.
+- Semester marks entry with IA and external marks.
+- Student profile update and image upload support.
+- Responsive design for desktop, tablet, and mobile screens.
 
-### `npm run eject`
+## Tech Stack
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+- React.js
+- TypeScript
+- React Router DOM
+- Supabase
+- Recharts
+- Lucide React
+- SweetAlert2
+- CSS
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+## Project Structure
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+```text
+src/
+  components/
+  context/
+  pages/
+  services/
+  types/
+  App.tsx
+  App.css
+  index.tsx
+  supabaseClient.ts
+```
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+## Installation
 
-## Learn More
+Install dependencies:
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+```bash
+npm install
+```
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+Start development server:
+
+```bash
+npm start
+```
+
+Open in browser:
+
+```text
+http://localhost:3000
+```
+
+Create production build:
+
+```bash
+npm run build
+```
+
+## Important Pages
+
+- `Dashboard.tsx` - Dashboard charts and summary cards.
+- `students.tsx` - Student management page.
+- `Attendance.tsx` - Attendance marking page.
+- `Assignments.tsx` - Assignment marks page.
+- `Marks.tsx` - Semester marks page.
+- `personalinfo.tsx` - Student profile page.
+- `login.tsx` - Login page.
+
+## Notes
+
+This project is suitable for academic demonstration. For production use, authentication should be upgraded with secure password handling, Supabase Auth, environment variables, and row-level security policies.

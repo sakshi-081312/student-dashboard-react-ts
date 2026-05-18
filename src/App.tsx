@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 
-import Navbar from "./components/Navbar";
+
 import Sidebar from "./components/Sidebar";
 
 import Dashboard from "./pages/Dashboard";
@@ -95,7 +95,7 @@ function App() {
   return (
     <div className="app-container">
 
-      <Navbar />
+      
 
       <div className="layout">
 
@@ -162,7 +162,6 @@ function App() {
               element={
                 <Marks
                   students={students}
-                  marks={marks}
                   loadMarks={loadAllData}
                 />
               }

@@ -1,667 +1,258 @@
-import React, {
-  useMemo,
-  useRef,
-  useState
-} from "react";
-
+import React, { useEffect, useMemo, useState } from "react";
 import Swal from "sweetalert2";
-
-import {
-  Search,
-  User
-} from "lucide-react";
-
-import { addMarks } from "../services/api";
 import { Student } from "../types/Student";
+
+type MarksState = Record<number, { ia: number; esa: number }>;
 
 interface Props {
   students: Student[];
-  marks: any[];
-  loadMarks: () => void;
+  loadMarks?: () => void;
 }
 
-const Marks: React.FC<Props> = ({
-  students,
-  marks,
-  loadMarks
-}) => {
+const Marks: React.FC<Props> = ({ students, loadMarks }) => {
+  const [course, setCourse] = useState("ECE-Semester 8");
+  const [subject, setSubject] = useState("Industrial Training");
+  const [group, setGroup] = useState("A");
+  const [marks, setMarks] = useState<MarksState>({});
 
-  // ================= STATES =================
+  const subjects = [
+    "Industrial Training",
+    "Program Elective - III",
+    "Program Elective - IV",
+    "Project Work - II",
+    "Industrial Project",
+  ];
 
-  const [search, setSearch] =
-    useState("");
-
-  const [marksData, setMarksData] =
-    useState<any>({});
-
-  const [selectedStudent, setSelectedStudent] =
-    useState<Student | null>(null);
-
-  const inputRefs =
-    useRef<(HTMLInputElement | null)[]>(
-      []
-    );
-
-  // ================= FILTER + SORT =================
+  const storageKey = `marks-${course}-${subject}-${group}`;
 
   const filteredStudents = useMemo(() => {
+    if (!students || students.length === 0) return [];
 
-    return [...students]
+    const filtered = students.filter((student) => {
+      const dbCourse = (student.course || "")
+        .toString()
+        .toUpperCase()
+        .replace(/\s/g, "")
+        .replace(/-/g, "")
+        .replace(/\./g, "");
 
-      .filter((student) =>
-        student.name
-          .toLowerCase()
-          .includes(search.toLowerCase())
-      )
+      return dbCourse.includes("ECE");
+    });
 
-      .sort((a, b) =>
-        a.name.localeCompare(b.name)
-      );
+    const sortedStudents = [...filtered].sort((a, b) =>
+      (a.name || "").localeCompare(b.name || "")
+    );
 
-  }, [students, search]);
+    return group === "A" ? sortedStudents.slice(0, 42) : sortedStudents.slice(42, 85);
+  }, [students, group]);
 
-  // ================= HANDLE CHANGE =================
+  useEffect(() => {
+    const savedData = localStorage.getItem(storageKey);
+    setMarks(savedData ? JSON.parse(savedData) : {});
+  }, [storageKey]);
 
-  const handleChange = (
-    studentId: number,
-    field: string,
-    value: string
-  ) => {
+  const handleChange = (studentId: number, field: "ia" | "esa", value: string) => {
+    let num = Number(value);
+    if (num > 50) num = 50;
+    if (num < 0) num = 0;
 
-    setMarksData((prev: any) => ({
-      ...prev,
-
+    const updatedMarks = {
+      ...marks,
       [studentId]: {
-        ...prev[studentId],
-        [field]: value
-      }
-    }));
+        ...marks[studentId],
+        [field]: num,
+      },
+    };
 
+    setMarks(updatedMarks);
+    localStorage.setItem(storageKey, JSON.stringify(updatedMarks));
   };
-
-  // ================= NEXT INPUT =================
-
-  const handleKeyDown = (
-    e: React.KeyboardEvent<HTMLInputElement>,
-    index: number
-  ) => {
-
-    if (e.key === "Enter") {
-
-      e.preventDefault();
-
-      inputRefs.current[index + 1]?.focus();
-
-    }
-
-  };
-
-  // ================= TOTAL =================
 
   const getTotal = (id: number) => {
-
-    const mst1 =
-      Number(marksData[id]?.mst1 || 0);
-
-    const mst2 =
-      Number(marksData[id]?.mst2 || 0);
-
-    return mst1 + mst2;
-
+    const ia = marks[id]?.ia || 0;
+    const esa = marks[id]?.esa || 0;
+    return ia + esa;
   };
 
-  // ================= SAVE =================
+  const handleSave = () => {
+    localStorage.setItem(storageKey, JSON.stringify(marks));
 
-  const handleSave = async () => {
+    Swal.fire({
+      icon: "success",
+      title: "Marks Saved Successfully",
+      text: "Data saved permanently.",
+      timer: 2000,
+      showConfirmButton: false,
+    });
 
-    try {
-
-      for (const student of filteredStudents) {
-
-        if (!student.id) continue;
-
-        const data =
-          marksData[student.id];
-
-        if (!data) continue;
-
-        await addMarks({
-
-          student_id: student.id,
-
-          student_name: student.name,
-
-          mst1:
-            Number(data.mst1 || 0),
-
-          mst2:
-            Number(data.mst2 || 0)
-
-        });
-
-      }
-
-      Swal.fire({
-        icon: "success",
-        title: "Saved",
-        text: "Marks added successfully"
-      });
-
-      loadMarks();
-
-    } catch (error) {
-
-      console.log(error);
-
-      Swal.fire({
-        icon: "error",
-        title: "Error",
-        text: "Failed to save marks"
-      });
-
-    }
-
+    if (loadMarks) loadMarks();
   };
-
-  // ================= UI =================
 
   return (
-
-    <div
-      style={{
-        padding: "15px",
-        background: "#f8fafc",
-        minHeight: "100vh"
-      }}
-    >
-
-      {/* HEADER */}
-
-      <div
-        style={{
-          display: "flex",
-          justifyContent:
-            "space-between",
-          alignItems: "center",
-          marginBottom: "15px",
-          flexWrap: "wrap",
-          gap: "10px"
-        }}
-      >
-
-        <h2
-          style={{
-            margin: 0,
-            color: "#0f172a"
-          }}
-        >
-          📊 Marks Entry
-        </h2>
-
-        <button
-          onClick={handleSave}
-          style={{
-            background: "#2563eb",
-            color: "white",
-            border: "none",
-            padding:
-              "10px 18px",
-            borderRadius: "8px",
-            cursor: "pointer",
-            fontWeight: 600
-          }}
-        >
-          Save Marks
-        </button>
-
+    <div className="page-shell">
+      <div className="page-header">
+        <div>
+          <h1 className="page-title">Semester 8 Marks Entry</h1>
+          <p className="page-subtitle">
+            Enter IA and External marks for ECE Semester 8 students
+          </p>
+        </div>
       </div>
 
-      {/* SEARCH */}
-
-      <div
-        style={{
-          position: "relative",
-          marginBottom: "15px"
-        }}
-      >
-
-        <Search
-          size={18}
-          style={{
-            position: "absolute",
-            top: "11px",
-            left: "10px",
-            color: "#64748b"
-          }}
-        />
-
-        <input
-          type="text"
-          placeholder="Search student..."
-          value={search}
-          onChange={(e) =>
-            setSearch(e.target.value)
-          }
-          style={{
-            width: "100%",
-            padding:
-              "10px 10px 10px 35px",
-            borderRadius: "8px",
-            border:
-              "1px solid #cbd5e1",
-            outline: "none"
-          }}
-        />
-
-      </div>
-
-      {/* TABLE */}
-
-      <div
-        style={{
-          overflowX: "auto",
-          background: "white",
-          borderRadius: "12px",
-          boxShadow:
-            "0 2px 10px rgba(0,0,0,0.08)"
-        }}
-      >
-
-        <table
-          style={{
-            width: "100%",
-            borderCollapse:
-              "collapse",
-            tableLayout: "fixed"
-          }}
-        >
-
-          <thead>
-
-            <tr
-              style={{
-                background:
-                  "#2563eb",
-                color: "white"
-              }}
+      <div className="form-card">
+        <div className="form-grid" style={{ width: "100%" }}>
+          <div>
+            <label style={styles.label}>Select Course</label>
+            <select
+              style={styles.select}
+              value={course}
+              onChange={(e) => setCourse(e.target.value)}
             >
+              <option value="ECE-Semester 8">ECE - Semester 8</option>
+            </select>
+          </div>
 
-              <th
-                style={{
-                  ...thStyle,
-                  width: "40%"
-                }}
-              >
-                Student
-              </th>
+          <div>
+            <label style={styles.label}>Select Subject</label>
+            <select
+              style={styles.select}
+              value={subject}
+              onChange={(e) => setSubject(e.target.value)}
+            >
+              {subjects.map((sub) => (
+                <option key={sub} value={sub}>
+                  {sub}
+                </option>
+              ))}
+            </select>
+          </div>
 
-              <th
-                style={{
-                  ...thStyle,
-                  width: "15%"
-                }}
-              >
-                MST 1
-              </th>
+          <div>
+            <label style={styles.label}>Select Group</label>
+            <select
+              style={styles.select}
+              value={group}
+              onChange={(e) => setGroup(e.target.value)}
+            >
+              <option value="A">Group A (1 - 42 Students)</option>
+              <option value="B">Group B (43 - 85 Students)</option>
+            </select>
+          </div>
 
-              <th
-                style={{
-                  ...thStyle,
-                  width: "15%"
-                }}
-              >
-                MST 2
-              </th>
+          <button style={styles.saveBtn} className="add-btn" onClick={handleSave}>
+            Save Marks
+          </button>
+        </div>
+      </div>
 
-              <th
-                style={{
-                  ...thStyle,
-                  width: "15%"
-                }}
-              >
-                Total
-              </th>
-
-              <th
-                style={{
-                  ...thStyle,
-                  width: "15%"
-                }}
-              >
-                Profile
-              </th>
-
+      <div className="table-card data-table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>S.N.</th>
+              <th>Roll No.</th>
+              <th>Student Name</th>
+              <th>IA Marks (50)</th>
+              <th>External Marks (50)</th>
+              <th>Total (100)</th>
             </tr>
-
           </thead>
 
           <tbody>
-
-            {filteredStudents.map(
-              (
-                student,
-                index
-              ) => {
-
-                const duplicateNames =
-                  students.filter(
-                    (s) =>
-                      s.name ===
-                      student.name
-                  );
+            {filteredStudents.length === 0 ? (
+              <tr>
+                <td colSpan={6} style={styles.noData}>
+                  No Students Found
+                </td>
+              </tr>
+            ) : (
+              filteredStudents.map((student, index) => {
+                const id = Number(student.id);
 
                 return (
-
-                  <tr
-                    key={
-                      student.id ||
-                      index
-                    }
-                    style={{
-                      borderBottom:
-                        "1px solid #e2e8f0"
-                    }}
-                  >
-
-                    {/* NAME */}
-
-                    <td style={tdStyle}>
-
-                      <div
-                        style={{
-                          display:
-                            "flex",
-                          alignItems:
-                            "center",
-                          gap: "10px"
-                        }}
-                      >
-
-                        <div
-                          style={{
-                            width: "35px",
-                            height:
-                              "35px",
-                            borderRadius:
-                              "50%",
-                            background:
-                              "#2563eb",
-                            color:
-                              "white",
-                            display:
-                              "flex",
-                            alignItems:
-                              "center",
-                            justifyContent:
-                              "center",
-                            fontWeight:
-                              700,
-                            flexShrink: 0
-                          }}
-                        >
-                          {student.name
-                            ?.charAt(0)
-                            ?.toUpperCase()}
-                        </div>
-
-                        <div
-                          style={{
-                            overflow:
-                              "hidden"
-                          }}
-                        >
-
-                          <div
-                            style={{
-                              fontWeight:
-                                600,
-                              whiteSpace:
-                                "nowrap",
-                              overflow:
-                                "hidden",
-                              textOverflow:
-                                "ellipsis"
-                            }}
-                          >
-                            {
-                              student.name
-                            }
-                          </div>
-
-                          {duplicateNames.length >
-                            1 && (
-
-                            <div
-                              style={{
-                                fontSize:
-                                  "11px",
-                                color:
-                                  "#64748b"
-                              }}
-                            >
-                              Roll:
-                              {
-                                student.rollno
-                              }
-                            </div>
-
-                          )}
-
-                        </div>
-
-                      </div>
-
-                    </td>
-
-                    {/* MST1 */}
-
-                    <td style={tdStyle}>
-
+                  <tr key={id}>
+                    <td>{group === "A" ? index + 1 : index + 43}</td>
+                    <td>{student.rollno}</td>
+                    <td style={styles.nameCell}>{student.name}</td>
+                    <td>
                       <input
-                        ref={(el) => {
-                          inputRefs.current[
-                            index *
-                              2
-                          ] = el;
-                        }}
-
                         type="number"
-
-                        value={
-                          student.id
-                            ? marksData[
-                                student.id
-                              ]?.mst1 || ""
-                            : ""
-                        }
-
-                        onChange={(
-                          e
-                        ) =>
-                          student.id &&
-                          handleChange(
-                            student.id,
-                            "mst1",
-                            e.target
-                              .value
-                          )
-                        }
-
-                        onKeyDown={(
-                          e
-                        ) =>
-                          handleKeyDown(
-                            e,
-                            index *
-                              2
-                          )
-                        }
-
-                        placeholder="MST1"
-
-                        style={
-                          inputStyle
-                        }
+                        min={0}
+                        max={50}
+                        value={marks[id]?.ia ?? ""}
+                        style={styles.input}
+                        onChange={(e) => handleChange(id, "ia", e.target.value)}
                       />
-
                     </td>
-
-                    {/* MST2 */}
-
-                    <td style={tdStyle}>
-
+                    <td>
                       <input
-                        ref={(el) => {
-                          inputRefs.current[
-                            index *
-                              2 +
-                              1
-                          ] = el;
-                        }}
-
                         type="number"
-
-                        value={
-                          student.id
-                            ? marksData[
-                                student.id
-                              ]?.mst2 || ""
-                            : ""
-                        }
-
-                        onChange={(
-                          e
-                        ) =>
-                          student.id &&
-                          handleChange(
-                            student.id,
-                            "mst2",
-                            e.target
-                              .value
-                          )
-                        }
-
-                        onKeyDown={(
-                          e
-                        ) =>
-                          handleKeyDown(
-                            e,
-                            index *
-                              2 +
-                              1
-                          )
-                        }
-
-                        placeholder="MST2"
-
-                        style={
-                          inputStyle
-                        }
+                        min={0}
+                        max={50}
+                        value={marks[id]?.esa ?? ""}
+                        style={styles.input}
+                        onChange={(e) => handleChange(id, "esa", e.target.value)}
                       />
-
                     </td>
-
-                    {/* TOTAL */}
-
-                    <td
-                      style={{
-                        ...tdStyle,
-                        fontWeight:
-                          700,
-                        color:
-                          "#16a34a"
-                      }}
-                    >
-                      {student.id
-                        ? getTotal(
-                            student.id
-                          )
-                        : 0}
-                    </td>
-
-                    {/* PROFILE */}
-
-                    <td style={tdStyle}>
-
-                      <button
-                        onClick={() =>
-                          setSelectedStudent(
-                            student
-                          )
-                        }
-                        style={{
-                          border:
-                            "none",
-                          background:
-                            "#dbeafe",
-                          width:
-                            "35px",
-                          height:
-                            "35px",
-                          borderRadius:
-                            "50%",
-                          cursor:
-                            "pointer"
-                        }}
-                      >
-                        <User
-                          size={16}
-                        />
-                      </button>
-
-                    </td>
-
+                    <td style={styles.total}>{getTotal(id)}</td>
                   </tr>
-
                 );
-
-              }
+              })
             )}
-
           </tbody>
-
         </table>
 
+        <div className="note-box">
+          IA = 50 | External = 50 | Total = 100 | Students are sorted alphabetically.
+        </div>
       </div>
-
     </div>
-
   );
-
 };
 
-// ================= STYLES =================
-
-const thStyle:
-  React.CSSProperties = {
-
-  padding: "10px",
-  textAlign: "left",
-  fontSize: "14px"
-
-};
-
-const tdStyle:
-  React.CSSProperties = {
-
-  padding: "6px",
-  fontSize: "13px",
-  whiteSpace: "nowrap"
-
-};
-
-const inputStyle:
-  React.CSSProperties = {
-
-  width: "60px",
-  padding: "6px",
-  border:
-    "1px solid #cbd5e1",
-  borderRadius: "6px",
-  textAlign: "center",
-  outline: "none"
-
-  
+const styles: any = {
+  label: {
+    display: "block",
+    marginBottom: 8,
+    color: "#334155",
+    fontSize: 14,
+    fontWeight: 700,
+  },
+  select: {
+    width: "100%",
+    padding: 12,
+    borderRadius: 8,
+    border: "1px solid #dce4ec",
+    background: "#fff",
+    outline: "none",
+  },
+  saveBtn: {
+    minWidth: 150,
+    height: 44,
+  },
+  input: {
+    width: 96,
+    padding: 10,
+    borderRadius: 8,
+    border: "1px solid #dce4ec",
+    textAlign: "center",
+    outline: "none",
+  },
+  nameCell: {
+    color: "#172033",
+    fontWeight: 700,
+    textAlign: "left",
+  },
+  total: {
+    color: "#0f766e",
+    fontSize: 16,
+    fontWeight: 700,
+  },
+  noData: {
+    padding: 30,
+    color: "#667085",
+    textAlign: "center",
+  },
 };
 
 export default Marks;
