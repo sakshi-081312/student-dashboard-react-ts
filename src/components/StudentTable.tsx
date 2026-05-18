@@ -348,14 +348,14 @@ const styles: any = {
     padding: "13px",
     cursor: "pointer",
     textAlign: "center",
-    fontSize: "13px",
+    fontSize: "12px",
     whiteSpace: "nowrap",
   },
   td: {
     padding: "13px",
     textAlign: "center",
     verticalAlign: "middle",
-    fontSize: "14px",
+    fontSize: "12px",
   },
   profileWrap: {
     display: "flex",
@@ -370,7 +370,7 @@ const styles: any = {
     padding: 0,
   },
   studentName: {
-    fontWeight: 700,
+    fontWeight: 400,
     textAlign: "left",
   },
   statusBadge: {
@@ -496,13 +496,13 @@ const styles: any = {
   },
   modalName: {
     margin: 0,
-    fontSize: "24px",
+    fontSize: "14px",
     color: "#172033",
   },
   modalCourse: {
     margin: "4px 0 0",
     color: "#667085",
-    fontSize: "14px",
+    fontSize: "12px",
   },
   detailsGrid: {
     display: "grid",
@@ -525,9 +525,9 @@ const styles: any = {
   },
   value: {
     margin: "4px 0 0",
-    fontSize: "14px",
+    fontSize: "12px",
     color: "#172033",
-    fontWeight: 700,
+    fontWeight: 400,
     overflowWrap: "anywhere",
   },
 };

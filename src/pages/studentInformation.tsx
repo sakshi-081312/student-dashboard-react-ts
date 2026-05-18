@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from "react";
 import Swal from "sweetalert2";
+import { Plus, Save } from "lucide-react";
 
 interface Props {
   students: any[];
@@ -191,7 +192,8 @@ const StudentInformation: React.FC<Props> = ({
           }}
           onClick={() => setShowModal(true)}
         >
-          + Add Student
+          <Plus size={16} />
+          Add Student
         </button>
 
       </div>
@@ -325,7 +327,7 @@ const StudentInformation: React.FC<Props> = ({
 
                         <div
                           style={{
-                            fontWeight: 600,
+                            fontWeight: 400,
                           }}
                         >
                           {student.name}
@@ -400,7 +402,7 @@ const StudentInformation: React.FC<Props> = ({
                   borderRadius: "50%",
                   background: accentColor,
                   color: "#fff",
-                  fontSize: "34px",
+                  fontSize: "14px",
                   fontWeight: "bold",
                   display: "flex",
                   justifyContent: "center",
@@ -413,7 +415,7 @@ const StudentInformation: React.FC<Props> = ({
                   ?.toUpperCase()}
               </div>
 
-              <h2>{selectedStudent.name}</h2>
+              <h2 style={{ fontSize: "14px" }}>{selectedStudent.name}</h2>
 
               <p
                 style={{
@@ -519,6 +521,7 @@ const StudentInformation: React.FC<Props> = ({
                 }}
                 onClick={handleAddStudent}
               >
+                <Save size={16} />
                 Save
               </button>
 
@@ -563,7 +566,7 @@ const styles: any = {
 
   heading: {
     margin: 0,
-    fontSize: "30px",
+    fontSize: "14px",
     fontWeight: 700,
     color: "#0f172a",
   },
@@ -574,13 +577,17 @@ const styles: any = {
   },
 
   addBtn: {
+    display: "inline-flex",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: "8px",
     border: "none",
     color: "#fff",
     padding: "12px 18px",
-    borderRadius: "10px",
+    borderRadius: "8px",
     cursor: "pointer",
     fontWeight: 600,
-    fontSize: "14px",
+    fontSize: "12px",
   },
 
   searchBox: {
@@ -593,7 +600,7 @@ const styles: any = {
     borderRadius: "10px",
     border: "1px solid #cbd5e1",
     outline: "none",
-    fontSize: "14px",
+    fontSize: "12px",
     background: "#fff",
   },
 
@@ -613,14 +620,14 @@ const styles: any = {
     color: "#fff",
     padding: "18px",
     textAlign: "left",
-    fontSize: "15px",
+    fontSize: "12px",
     fontWeight: 600,
   },
 
   td: {
     padding: "18px",
     borderBottom: "1px solid #e2e8f0",
-    fontSize: "14px",
+    fontSize: "12px",
   },
 
   studentInfo: {
@@ -638,14 +645,14 @@ const styles: any = {
     alignItems: "center",
     color: "#fff",
     fontWeight: "bold",
-    fontSize: "18px",
+    fontSize: "14px",
   },
 
   badge: {
     padding: "6px 14px",
     borderRadius: "30px",
     fontWeight: 600,
-    fontSize: "13px",
+    fontSize: "12px",
   },
 
   overlay: {
@@ -685,7 +692,7 @@ const styles: any = {
     borderRadius: "10px",
     border: "1px solid #cbd5e1",
     outline: "none",
-    fontSize: "14px",
+    fontSize: "12px",
     boxSizing: "border-box",
   },
 
@@ -695,6 +702,10 @@ const styles: any = {
   },
 
   saveBtn: {
+    display: "inline-flex",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: "8px",
     flex: 1,
     border: "none",
     color: "#fff",

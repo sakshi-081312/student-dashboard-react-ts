@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Student } from "../types/Student";
-import { X } from "lucide-react";
+import { Save, X } from "lucide-react";
 
 interface Props {
   show: boolean;
@@ -121,6 +121,7 @@ const StudentModal: React.FC<Props> = ({
           style={styles.saveBtn}
           onClick={() => onSave(student)}
         >
+          <Save size={16} />
           Save
         </button>
 
@@ -163,7 +164,7 @@ const styles: any = {
   title: {
     marginTop: "10px",
     marginBottom: "15px",
-    fontSize: "18px",
+    fontSize: "14px",
     fontWeight: "bold"
   },
 
@@ -177,13 +178,18 @@ const styles: any = {
   },
 
   saveBtn: {
+    display: "inline-flex",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: "8px",
     width: "100%",
     padding: "10px",
-    background: "#172b4d",
+    background: "linear-gradient(135deg, #2563eb, #0891b2)",
     color: "#fff",
     border: "none",
     borderRadius: "6px",
     cursor: "pointer",
+    fontSize: "12px",
     fontWeight: "bold"
   }
 };

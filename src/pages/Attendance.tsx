@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from "react";
 import Swal from "sweetalert2";
+import { Save } from "lucide-react";
 
 import { addAttendance } from "../services/api";
 import { Student } from "../types/Student";
@@ -114,6 +115,7 @@ const Attendance: React.FC<Props> = ({ students, loadAttendance }) => {
         </div>
 
         <button onClick={handleSaveAll} className="add-btn">
+          <Save size={16} />
           Save Attendance
         </button>
       </div>
@@ -241,15 +243,15 @@ const styles: any = {
   studentName: {
     color: "#172033",
     fontSize: 12,
-    fontWeight: 700,
+    fontWeight: 600,
     lineHeight: "15px",
     overflowWrap: "anywhere",
   },
   rollText: {
     marginTop: 2,
     color: "#667085",
-    fontSize: 10,
-    lineHeight: "12px",
+    fontSize: 12,
+    lineHeight: "15px",
   },
   checkbox: {
     width: 16,
@@ -264,12 +266,12 @@ const styles: any = {
   },
   statTitle: {
     color: "#667085",
-    fontSize: 13,
+    fontSize: 12,
     marginBottom: 6,
   },
   statValue: {
     color: "#172033",
-    fontSize: 28,
+    fontSize: 14,
     fontWeight: 700,
   },
 };

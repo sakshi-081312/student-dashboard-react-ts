@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { supabase } from "../supabaseClient";
 import Swal from "sweetalert2";
+import { Save } from "lucide-react";
 
 interface Student {
   id?: number;
@@ -260,7 +261,7 @@ const PersonalInfo = () => {
     marginBottom: "12px",
     borderRadius: "10px",
     border: "1px solid #ddd",
-    fontSize: "14px",
+    fontSize: "12px",
     outline: "none",
   };
 
@@ -327,7 +328,7 @@ const PersonalInfo = () => {
   justifyContent: "center",
   alignItems: "center",
   cursor: "pointer",
-  fontSize: "14px",
+  fontSize: "12px",
             }}
           >
             ✏️
@@ -347,6 +348,7 @@ const PersonalInfo = () => {
           style={{
             marginBottom: "20px",
             color: "#333",
+            fontSize: "14px",
           }}
         >
           My Profile
@@ -404,12 +406,15 @@ const PersonalInfo = () => {
               color: "#fff",
               fontWeight: "bold",
               cursor: "pointer",
-              fontSize: "15px",
+              fontSize: "12px",
+              display: "inline-flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: "8px",
             }}
           >
-            {saving
-              ? "Saving..."
-              : "Update Profile"}
+            <Save size={16} />
+            {saving ? "Saving..." : "Update Profile"}
           </button>
         </form>
       </div>

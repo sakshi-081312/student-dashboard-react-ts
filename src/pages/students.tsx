@@ -12,6 +12,7 @@ import {
 import { Student } from "../types/Student";
 
 import Swal from "sweetalert2";
+import { Plus } from "lucide-react";
 
 interface Props {
   students: Student[];
@@ -90,7 +91,8 @@ const Students: React.FC<Props> = ({
           }}
           className="add-btn"
         >
-          + Add Student
+          <Plus size={16} />
+          Add Student
         </button>
       </div>
 

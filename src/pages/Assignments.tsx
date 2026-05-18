@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from "react";
 import Swal from "sweetalert2";
+import { Save } from "lucide-react";
 
 import { addAssignment } from "../services/api";
 
@@ -90,6 +91,7 @@ const Assignments: React.FC<Props> = ({ students, loadAssignments }) => {
           disabled={completedEntries === 0}
           className="add-btn"
         >
+          <Save size={16} />
           Save Assignments
         </button>
       </div>
@@ -230,7 +232,7 @@ const styles: any = {
   },
   nameCell: {
     color: "#172033",
-    fontWeight: 700,
+    fontWeight: 400,
     textAlign: "left",
   },
   total: {
@@ -248,12 +250,12 @@ const styles: any = {
   },
   statTitle: {
     color: "#667085",
-    fontSize: 13,
+    fontSize: 12,
     marginBottom: 6,
   },
   statValue: {
     color: "#172033",
-    fontSize: 28,
+    fontSize: 14,
     fontWeight: 700,
   },
 };

@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import Swal from "sweetalert2";
+import { Save } from "lucide-react";
 import { Student } from "../types/Student";
 
 type MarksState = Record<number, { ia: number; esa: number }>;
@@ -140,6 +141,7 @@ const Marks: React.FC<Props> = ({ students, loadMarks }) => {
           </div>
 
           <button style={styles.saveBtn} className="add-btn" onClick={handleSave}>
+            <Save size={16} />
             Save Marks
           </button>
         </div>
@@ -215,7 +217,7 @@ const styles: any = {
     display: "block",
     marginBottom: 8,
     color: "#334155",
-    fontSize: 14,
+    fontSize: 12,
     fontWeight: 700,
   },
   select: {
@@ -240,12 +242,12 @@ const styles: any = {
   },
   nameCell: {
     color: "#172033",
-    fontWeight: 700,
+    fontWeight: 400,
     textAlign: "left",
   },
   total: {
     color: "#0f766e",
-    fontSize: 16,
+    fontSize: 12,
     fontWeight: 700,
   },
   noData: {
