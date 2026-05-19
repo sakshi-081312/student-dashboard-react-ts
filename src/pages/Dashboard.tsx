@@ -42,31 +42,40 @@ interface Props {
   role?: "admin" | "teacher" | "student";
 }
 
-const COLORS = ["#2563eb", "#0f766e", "#d97706", "#7c3aed", "#dc2626"];
-
-const CHART_COLORS = {
-  blue: "#2563eb",
-  green: "#059669",
-  amber: "#f59e0b",
-  purple: "#7c3aed",
-  red: "#ef4444",
-  cyan: "#06b6d4",
-};
+const COLORS = [
+  "#2563eb",
+  "#127474",
+  "#f59e0b",
+  "#7389b9",
+  "#8b5cf6",
+];
 
 const EVENTS = [
-  { title: "AI Workshop 2026", date: "20 May 2026", type: "Event" },
-  { title: "Hackathon Registration", date: "24 May 2026", type: "Event" },
-  { title: "Semester Viva", date: "28 May 2026", type: "Academic" },
+  {
+    title: "AI Workshop 2026",
+    date: "20 May 2026",
+    type: "Event",
+  },
+  {
+    title: "Hackathon Registration",
+    date: "24 May 2026",
+    type: "Event",
+  },
+  {
+    title: "Semester Viva",
+    date: "28 May 2026",
+    type: "Academic",
+  },
 ];
 
 const NOTICES = [
   {
     title: "Summer Internship Drive",
-    desc: "New internship applications are now open.",
+    desc: "Applications are now open.",
   },
   {
     title: "Result Upload",
-    desc: "Final semester marks will be uploaded this week.",
+    desc: "Semester marks upload this week.",
   },
 ];
 
@@ -75,10 +84,10 @@ const Dashboard: React.FC<Props> = ({
   attendance = [],
   assignments = [],
   marks = [],
-  role = "admin",
 }) => {
   const [search, setSearch] = useState("");
-  const [courseFilter, setCourseFilter] = useState("All");
+  const [courseFilter, setCourseFilter] =
+    useState("All");
 
   const safeStudents = useMemo(
     () => (Array.isArray(students) ? students : []),
@@ -86,67 +95,98 @@ const Dashboard: React.FC<Props> = ({
   );
 
   const safeAttendance = useMemo(
-    () => (Array.isArray(attendance) ? attendance : []),
+    () =>
+      Array.isArray(attendance)
+        ? attendance
+        : [],
     [attendance]
   );
 
   const safeAssignments = useMemo(
-    () => (Array.isArray(assignments) ? assignments : []),
+    () =>
+      Array.isArray(assignments)
+        ? assignments
+        : [],
     [assignments]
   );
 
-  const safeMarks = useMemo(
-    () => (Array.isArray(marks) ? marks : []),
-    [marks]
-  );
-
   const courses = useMemo(
-    () => Array.from(new Set(safeStudents.map((s) => s.course || "Unknown"))),
+    () =>
+      Array.from(
+        new Set(
+          safeStudents.map(
+            (s) => s.course || "Unknown"
+          )
+        )
+      ),
     [safeStudents]
   );
 
   const filteredStudents = useMemo(() => {
     return safeStudents.filter((s) => {
       const matchSearch =
-        s.name?.toLowerCase().includes(search.toLowerCase()) ||
-        s.course?.toLowerCase().includes(search.toLowerCase());
+        s.name
+          ?.toLowerCase()
+          .includes(search.toLowerCase()) ||
+        s.course
+          ?.toLowerCase()
+          .includes(search.toLowerCase());
 
       const matchCourse =
-        courseFilter === "All" || s.course === courseFilter;
+        courseFilter === "All" ||
+        s.course === courseFilter;
 
       return matchSearch && matchCourse;
     });
   }, [safeStudents, search, courseFilter]);
 
-  const totalStudents = filteredStudents.length || 1240;
-  const totalCourses = courses.length || 12;
+  const totalStudents =
+    filteredStudents.length || 1240;
 
-  const presentCount = safeAttendance.filter(
-    (a) => a.status === "Present"
-  ).length;
+  const totalCourses =
+    courses.length || 12;
+
+  const presentCount =
+    safeAttendance.filter(
+      (a) => a.status === "Present"
+    ).length;
 
   const attendancePercent =
     safeAttendance.length > 0
-      ? Math.round((presentCount / safeAttendance.length) * 100)
+      ? Math.round(
+          (presentCount /
+            safeAttendance.length) *
+            100
+        )
       : 92;
 
-  const totalAssignments = safeAssignments.length || 145;
+  const totalAssignments =
+    safeAssignments.length || 145;
 
-  const courseData = [
-    { name: "React", students: 210 },
-    { name: "Node", students: 180 },
-    { name: "Python", students: 260 },
-    { name: "Laravel", students: 120 },
-    { name: "AI/ML", students: 310 },
+  const attendanceTrend = [
+    { day: "Mon", present: 92 },
+    { day: "Tue", present: 95 },
+    { day: "Wed", present: 91 },
+    { day: "Thu", present: 97 },
+    { day: "Fri", present: 94 },
+    { day: "Sat", present: 89 },
   ];
 
-  const marksData = [
-    { name: "Jan", marks: 72 },
-    { name: "Feb", marks: 78 },
-    { name: "Mar", marks: 82 },
-    { name: "Apr", marks: 88 },
-    { name: "May", marks: 91 },
-    { name: "Jun", marks: 95 },
+  const performanceData = [
+    { month: "Jan", marks: 72 },
+    { month: "Feb", marks: 78 },
+    { month: "Mar", marks: 82 },
+    { month: "Apr", marks: 88 },
+    { month: "May", marks: 93 },
+    { month: "Jun", marks: 96 },
+  ];
+
+  const courseData = [
+    { name: "React", students: 240 },
+    { name: "Node", students: 190 },
+    { name: "Python", students: 310 },
+    { name: "Laravel", students: 150 },
+    { name: "AI/ML", students: 340 },
   ];
 
   const assignmentData = [
@@ -154,118 +194,138 @@ const Dashboard: React.FC<Props> = ({
     { name: "Pending", value: 15 },
   ];
 
-  const attendanceTrend = [
-    { name: "Mon", present: 92, absent: 8 },
-    { name: "Tue", present: 95, absent: 5 },
-    { name: "Wed", present: 91, absent: 9 },
-    { name: "Thu", present: 97, absent: 3 },
-    { name: "Fri", present: 94, absent: 6 },
-    { name: "Sat", present: 89, absent: 11 },
-  ];
-
-  const performanceData = [
-    { month: "Jan", performance: 68 },
-    { month: "Feb", performance: 74 },
-    { month: "Mar", performance: 81 },
-    { month: "Apr", performance: 87 },
-    { month: "May", performance: 93 },
-  ];
-
   const skillData = [
-    { name: "Frontend", value: 90, fill: "#2563eb" },
-    { name: "Backend", value: 78, fill: "#0f766e" },
-    { name: "AI/ML", value: 65, fill: "#7c3aed" },
+    {
+      name: "Frontend",
+      value: 90,
+      fill: "#2563eb",
+    },
+    {
+      name: "Backend",
+      value: 78,
+      fill: "#127474",
+    },
+    {
+      name: "AI/ML",
+      value: 68,
+      fill: "#8b5cf6",
+    },
   ];
 
   return (
-    <div className="page-shell">
+    <div style={styles.page}>
       {/* HERO */}
-      <div className="dashboard-hero">
+      <div style={styles.hero}>
         <div>
-          <h1>Dashboard 2025-26</h1>
-          <p>
-            Smart analytics for students, attendance, assignments, 
-            and academic growth.
+          <h1 style={styles.heroTitle}>
+            Dashboard 2025-26
+          </h1>
+
+          <p style={styles.heroSubtitle}>
+            Smart analytics for students,
+            attendance, assignments and
+            academic growth.
           </p>
         </div>
 
-        <div className="dashboard-actions">
-          <div className="field">
-            <Search size={18} />
+        <div style={styles.heroActions}>
+          <div style={styles.searchBox}>
+            <Search
+              size={18}
+              color="#64748b"
+            />
+
             <input
               placeholder="Search student..."
               value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              onChange={(e) =>
+                setSearch(e.target.value)
+              }
+              style={styles.searchInput}
             />
           </div>
 
           <select
             value={courseFilter}
-            onChange={(e) => setCourseFilter(e.target.value)}
-            className="select-field"
+            onChange={(e) =>
+              setCourseFilter(
+                e.target.value
+              )
+            }
+            style={styles.select}
           >
-            <option value="All">All Courses</option>
+            <option value="All">
+              All Courses
+            </option>
 
             {courses.map((course) => (
-              <option key={course} value={course}>
+              <option
+                key={course}
+                value={course}
+              >
                 {course}
               </option>
             ))}
           </select>
 
-          <div className="notification-btn">
+          <div style={styles.notifyBtn}>
             <Bell size={20} />
           </div>
         </div>
       </div>
 
       {/* STATS */}
-      <div className="stats-grid">
+      <div style={styles.statsGrid}>
         <StatCard
           title="Students"
           value={totalStudents}
           icon={<Users />}
-          color="#2563eb"
+          bg="rgb(239 138 22)"
         />
 
         <StatCard
           title="Attendance"
           value={`${attendancePercent}%`}
           icon={<ClipboardCheck />}
-          color="#059669"
+          bg="#127474"
         />
 
         <StatCard
           title="Courses"
           value={totalCourses}
           icon={<GraduationCap />}
-          color="#7c3aed"
+          bg="rgb(143 177 77 / 92%)"
         />
 
         <StatCard
           title="Assignments"
           value={totalAssignments}
           icon={<BookOpen />}
-          color="#f59e0b"
+          bg="#7389b9"
         />
 
         <StatCard
           title="Performance"
           value="94%"
           icon={<TrendingUp />}
-          color="#06b6d4"
+          bg="#5b5fc7"
         />
       </div>
 
-      {/* TOP CHARTS */}
-      <div className="dashboard-grid">
-        {/* Attendance */}
-        <GlassCard title="Attendance Analytics" badge="2025-26">
-          <ResponsiveContainer width="100%" height={320}>
-            <AreaChart data={attendanceTrend}>
+      {/* CHARTS */}
+      <div style={styles.chartGrid}>
+        {/* ATTENDANCE */}
+        <GlassCard title="Attendance Analytics">
+          <ResponsiveContainer
+            width="100%"
+            height={320}
+          >
+            <AreaChart
+              data={attendanceTrend}
+            >
               <defs>
                 <linearGradient
-                  id="presentGradient"
+                  id="colorAttendance"
                   x1="0"
                   y1="0"
                   x2="0"
@@ -273,78 +333,65 @@ const Dashboard: React.FC<Props> = ({
                 >
                   <stop
                     offset="5%"
-                    stopColor={CHART_COLORS.blue}
-                    stopOpacity={0.4}
+                    stopColor="#2563eb"
+                    stopOpacity={0.5}
                   />
-                  <stop
-                    offset="95%"
-                    stopColor={CHART_COLORS.blue}
-                    stopOpacity={0.02}
-                  />
-                </linearGradient>
 
-                <linearGradient
-                  id="absentGradient"
-                  x1="0"
-                  y1="0"
-                  x2="0"
-                  y2="1"
-                >
-                  <stop
-                    offset="5%"
-                    stopColor={CHART_COLORS.red}
-                    stopOpacity={0.4}
-                  />
                   <stop
                     offset="95%"
-                    stopColor={CHART_COLORS.red}
-                    stopOpacity={0.02}
+                    stopColor="#2563eb"
+                    stopOpacity={0}
                   />
                 </linearGradient>
               </defs>
 
-              <CartesianGrid stroke="#e5e7eb" vertical={false} />
-              <XAxis dataKey="name" />
+              <CartesianGrid
+                stroke="#edf2f7"
+                vertical={false}
+              />
+
+              <XAxis dataKey="day" />
               <YAxis />
+
               <Tooltip />
-              <Legend />
 
               <Area
                 type="monotone"
                 dataKey="present"
-                stroke={CHART_COLORS.blue}
-                fill="url(#presentGradient)"
-                strokeWidth={3}
-              />
-
-              <Area
-                type="monotone"
-                dataKey="absent"
-                stroke={CHART_COLORS.red}
-                fill="url(#absentGradient)"
-                strokeWidth={3}
+                stroke="#2563eb"
+                fill="url(#colorAttendance)"
+                strokeWidth={4}
               />
             </AreaChart>
           </ResponsiveContainer>
         </GlassCard>
 
-        {/* Assignment */}
-        <GlassCard title="Assignment Status" badge="Live">
-          <ResponsiveContainer width="100%" height={320}>
+        {/* ASSIGNMENT */}
+        <GlassCard title="Assignment Status">
+          <ResponsiveContainer
+            width="100%"
+            height={320}
+          >
             <PieChart>
               <Pie
                 data={assignmentData}
                 dataKey="value"
-                innerRadius={70}
+                innerRadius={75}
                 outerRadius={110}
                 paddingAngle={5}
               >
-                {assignmentData.map((_, i) => (
-                  <Cell
-                    key={i}
-                    fill={COLORS[i % COLORS.length]}
-                  />
-                ))}
+                {assignmentData.map(
+                  (_, i) => (
+                    <Cell
+                      key={i}
+                      fill={
+                        COLORS[
+                          i % COLORS.length
+                        ]
+                      }
+                    />
+                  )
+                )}
               </Pie>
 
               <Tooltip />
@@ -354,64 +401,84 @@ const Dashboard: React.FC<Props> = ({
         </GlassCard>
       </div>
 
-      {/* SECOND SECTION */}
-      <div className="dashboard-bottom-grid">
-        {/* Course */}
-        <GlassCard title="Students Per Technology" badge="Trending Skills">
-          <ResponsiveContainer width="100%" height={280}>
+      {/* SECOND CHARTS */}
+      <div style={styles.bottomGrid}>
+        {/* BAR */}
+        <GlassCard title="Students Per Technology">
+          <ResponsiveContainer
+            width="100%"
+            height={300}
+          >
             <BarChart data={courseData}>
-              <CartesianGrid stroke="#edf1f5" vertical={false} />
+              <CartesianGrid
+                stroke="#edf2f7"
+                vertical={false}
+              />
+
               <XAxis dataKey="name" />
               <YAxis />
               <Tooltip />
 
               <Bar
                 dataKey="students"
-                fill={CHART_COLORS.blue}
-                radius={[10, 10, 0, 0]}
+                fill="#127474"
+                radius={[12, 12, 0, 0]}
               />
             </BarChart>
           </ResponsiveContainer>
         </GlassCard>
 
-        {/* Marks */}
-        <GlassCard title="Academic Growth" badge="Top Performance">
-          <ResponsiveContainer width="100%" height={280}>
-            <ComposedChart data={marksData}>
-              <CartesianGrid stroke="#edf1f5" vertical={false} />
-              <XAxis dataKey="name" />
+        {/* PERFORMANCE */}
+        <GlassCard title="Academic Growth">
+          <ResponsiveContainer
+            width="100%"
+            height={300}
+          >
+            <ComposedChart
+              data={performanceData}
+            >
+              <CartesianGrid
+                stroke="#edf2f7"
+                vertical={false}
+              />
+
+              <XAxis dataKey="month" />
               <YAxis />
               <Tooltip />
 
               <Bar
                 dataKey="marks"
                 fill="#dbeafe"
-                radius={[8, 8, 0, 0]}
+                radius={[10, 10, 0, 0]}
               />
 
               <Line
                 type="monotone"
                 dataKey="marks"
-                stroke={CHART_COLORS.green}
+                stroke="#5b5fc7"
                 strokeWidth={4}
                 dot={{
                   r: 5,
-                  fill: CHART_COLORS.green,
+                  fill: "#5b5fc7",
                 }}
               />
             </ComposedChart>
           </ResponsiveContainer>
         </GlassCard>
 
-        {/* Skill Progress */}
-        <GlassCard title="Skill Progress" badge="AI Based">
-          <ResponsiveContainer width="100%" height={280}>
+        {/* SKILL */}
+        <GlassCard title="Skill Progress">
+          <ResponsiveContainer
+            width="100%"
+            height={300}
+          >
             <RadialBarChart
               innerRadius="20%"
               outerRadius="100%"
               data={skillData}
             >
               <RadialBar dataKey="value" />
+
               <Legend />
               <Tooltip />
             </RadialBarChart>
@@ -419,51 +486,10 @@ const Dashboard: React.FC<Props> = ({
         </GlassCard>
       </div>
 
-      {/* PERFORMANCE */}
-      <div className="dashboard-grid">
-        <GlassCard title="Monthly Performance" badge="2026 Insights">
-          <ResponsiveContainer width="100%" height={300}>
-            <AreaChart data={performanceData}>
-              <defs>
-                <linearGradient
-                  id="performanceGradient"
-                  x1="0"
-                  y1="0"
-                  x2="0"
-                  y2="1"
-                >
-                  <stop
-                    offset="5%"
-                    stopColor={CHART_COLORS.purple}
-                    stopOpacity={0.5}
-                  />
-
-                  <stop
-                    offset="95%"
-                    stopColor={CHART_COLORS.purple}
-                    stopOpacity={0.02}
-                  />
-                </linearGradient>
-              </defs>
-
-              <CartesianGrid stroke="#edf1f5" vertical={false} />
-              <XAxis dataKey="month" />
-              <YAxis />
-              <Tooltip />
-
-              <Area
-                type="monotone"
-                dataKey="performance"
-                stroke={CHART_COLORS.purple}
-                fill="url(#performanceGradient)"
-                strokeWidth={4}
-              />
-            </AreaChart>
-          </ResponsiveContainer>
-        </GlassCard>
-
-        <GlassCard title="AI Insights" badge="Smart Analytics">
-          <div className="insights-grid">
+      {/* INSIGHTS */}
+      <div style={styles.chartGrid}>
+        <GlassCard title="AI Insights">
+          <div style={styles.insightGrid}>
             <InsightCard
               icon={<Activity />}
               title="Attendance Improved"
@@ -483,78 +509,354 @@ const Dashboard: React.FC<Props> = ({
             />
           </div>
         </GlassCard>
-      </div>
 
-      {/* EVENTS + NOTICES */}
-      <div className="dashboard-bottom-grid">
-        <GlassCard title="Upcoming Events" badge="Latest">
+        <GlassCard title="Upcoming Events">
           {EVENTS.map((event, i) => (
-            <div className="event-card" key={i}>
+            <div
+              key={i}
+              style={styles.eventCard}
+            >
               <div>
-                <h4>{event.title}</h4>
-                <p>{event.date}</p>
+                <h4 style={styles.eventTitle}>
+                  {event.title}
+                </h4>
+
+                <p style={styles.eventDate}>
+                  {event.date}
+                </p>
               </div>
 
-              <span>{event.type}</span>
-            </div>
-          ))}
-        </GlassCard>
-
-        <GlassCard title="Important Notices" badge="Alerts">
-          {NOTICES.map((notice, i) => (
-            <div className="notice-card" key={i}>
-              <h4>{notice.title}</h4>
-              <p>{notice.desc}</p>
+              <span style={styles.badge}>
+                {event.type}
+              </span>
             </div>
           ))}
         </GlassCard>
       </div>
+
+      {/* NOTICES */}
+      <GlassCard title="Important Notices">
+        {NOTICES.map((notice, i) => (
+          <div
+            key={i}
+            style={styles.noticeCard}
+          >
+            <h4 style={styles.noticeTitle}>
+              {notice.title}
+            </h4>
+
+            <p style={styles.noticeText}>
+              {notice.desc}
+            </p>
+          </div>
+        ))}
+      </GlassCard>
     </div>
   );
 };
 
-const StatCard = ({ title, value, icon, color }: any) => (
-  <div className="stat-card">
-    <div className="stat-card-top">
-      <div>
-        <h2>{value}</h2>
-        <p>{title}</p>
-      </div>
+const StatCard = ({
+  title,
+  value,
+  icon,
+  bg,
+}: any) => (
+  <div
+    style={{
+      ...styles.statCard,
+      background: bg,
+    }}
+  >
+    <div>
+      <h2 style={styles.statValue}>
+        {value}
+      </h2>
 
-      <div
-        className="stat-icon"
-        style={{
-          color,
-          background: `${color}15`,
-        }}
-      >
-        {icon}
-      </div>
+      <p style={styles.statTitle}>
+        {title}
+      </p>
+    </div>
+
+    <div style={styles.statIcon}>
+      {icon}
     </div>
   </div>
 );
 
-const GlassCard = ({ title, badge, children }: any) => (
-  <div className="glass-card chart-wrap">
-    <div className="chart-card-header">
-      <h3>{title}</h3>
-
-      {badge && <span className="chart-pill">{badge}</span>}
+const GlassCard = ({
+  title,
+  children,
+}: any) => (
+  <div style={styles.glassCard}>
+    <div style={styles.cardHeader}>
+      <h3 style={styles.cardTitle}>
+        {title}
+      </h3>
     </div>
 
     {children}
   </div>
 );
 
-const InsightCard = ({ icon, title, value }: any) => (
-  <div className="insight-card">
-    <div className="insight-icon">{icon}</div>
+const InsightCard = ({
+  icon,
+  title,
+  value,
+}: any) => (
+  <div style={styles.insightCard}>
+    <div style={styles.insightIcon}>
+      {icon}
+    </div>
 
     <div>
-      <h4>{value}</h4>
-      <p>{title}</p>
+      <h4 style={styles.insightValue}>
+        {value}
+      </h4>
+
+      <p style={styles.insightTitle}>
+        {title}
+      </p>
     </div>
   </div>
 );
+
+const styles: any = {
+  page: {
+    padding: 24,
+    background:
+      "linear-gradient(to bottom right,#f8fafc,#eef2ff)",
+    minHeight: "100vh",
+  },
+
+  hero: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    flexWrap: "wrap",
+    gap: 20,
+    marginBottom: 28,
+  },
+
+  heroTitle: {
+    margin: 0,
+    fontSize: 34,
+    fontWeight: 800,
+    color: "#172033",
+  },
+
+  heroSubtitle: {
+    marginTop: 8,
+    color: "#667085",
+    fontSize: 15,
+  },
+
+  heroActions: {
+    display: "flex",
+    alignItems: "center",
+    gap: 14,
+    flexWrap: "wrap",
+  },
+
+  searchBox: {
+    display: "flex",
+    alignItems: "center",
+    gap: 10,
+    background: "#fff",
+    borderRadius: 14,
+    padding: "0 14px",
+    border: "1px solid #dce4ec",
+    minWidth: 240,
+    height: 50,
+  },
+
+  searchInput: {
+    border: "none",
+    outline: "none",
+    background: "transparent",
+    width: "100%",
+  },
+
+  select: {
+    height: 50,
+    borderRadius: 14,
+    border: "1px solid #dce4ec",
+    padding: "0 14px",
+    background: "#fff",
+    outline: "none",
+  },
+
+  notifyBtn: {
+    width: 50,
+    height: 50,
+    borderRadius: 14,
+    background: "#fff",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    border: "1px solid #dce4ec",
+    cursor: "pointer",
+  },
+
+  statsGrid: {
+    display: "grid",
+    gridTemplateColumns:
+      "repeat(auto-fit,minmax(220px,1fr))",
+    gap: 18,
+    marginBottom: 28,
+  },
+
+  statCard: {
+    borderRadius: 22,
+    padding: 24,
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    color: "#fff",
+    boxShadow:
+      "0 10px 24px rgba(0,0,0,0.12)",
+  },
+
+  statValue: {
+    margin: 0,
+    fontSize: 30,
+    fontWeight: 800,
+  },
+
+  statTitle: {
+    marginTop: 8,
+    color: "rgba(255,255,255,0.9)",
+    fontSize: 14,
+  },
+
+  statIcon: {
+    width: 58,
+    height: 58,
+    borderRadius: 16,
+    background:
+      "rgba(255,255,255,0.18)",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+
+  chartGrid: {
+    display: "grid",
+    gridTemplateColumns:
+      "repeat(auto-fit,minmax(420px,1fr))",
+    gap: 22,
+    marginBottom: 24,
+  },
+
+  bottomGrid: {
+    display: "grid",
+    gridTemplateColumns:
+      "repeat(auto-fit,minmax(320px,1fr))",
+    gap: 22,
+    marginBottom: 24,
+  },
+
+  glassCard: {
+    background:
+      "rgba(255,255,255,0.85)",
+    backdropFilter: "blur(10px)",
+    borderRadius: 24,
+    padding: 22,
+    boxShadow:
+      "0 8px 24px rgba(15,23,42,0.08)",
+  },
+
+  cardHeader: {
+    marginBottom: 18,
+  },
+
+  cardTitle: {
+    margin: 0,
+    fontSize: 20,
+    fontWeight: 700,
+    color: "#172033",
+  },
+
+  insightGrid: {
+    display: "grid",
+    gap: 18,
+  },
+
+  insightCard: {
+    display: "flex",
+    alignItems: "center",
+    gap: 16,
+    background: "#f8fafc",
+    borderRadius: 18,
+    padding: 18,
+  },
+
+  insightIcon: {
+    width: 52,
+    height: 52,
+    borderRadius: 14,
+    background: "#2563eb15",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    color: "#2563eb",
+  },
+
+  insightValue: {
+    margin: 0,
+    fontSize: 22,
+    fontWeight: 700,
+  },
+
+  insightTitle: {
+    marginTop: 4,
+    color: "#667085",
+  },
+
+  eventCard: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    padding: "16px 0",
+    borderBottom:
+      "1px solid #eef2f7",
+  },
+
+  eventTitle: {
+    margin: 0,
+    color: "#172033",
+  },
+
+  eventDate: {
+    marginTop: 4,
+    color: "#667085",
+    fontSize: 14,
+  },
+
+  badge: {
+    background: "#2563eb15",
+    color: "#2563eb",
+    padding: "8px 14px",
+    borderRadius: 999,
+    fontSize: 12,
+    fontWeight: 600,
+  },
+
+  noticeCard: {
+    padding: "18px 0",
+    borderBottom:
+      "1px solid #eef2f7",
+  },
+
+  noticeTitle: {
+    margin: 0,
+    color: "#172033",
+  },
+
+  noticeText: {
+    marginTop: 6,
+    color: "#667085",
+    lineHeight: 1.6,
+  },
+};
 
 export default Dashboard;
